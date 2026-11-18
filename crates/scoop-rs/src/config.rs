@@ -966,7 +966,7 @@ mod tests {
     #[test]
     fn set_covers_numeric_and_flag_keys() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-config-set");
+        let dir = std::env::temp_dir().join("scooper-test-config-set");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         std::env::set_var("SCOOP", dir.join("root"));
@@ -1000,7 +1000,7 @@ mod tests {
     #[test]
     fn env_beats_file_locations() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-config-precedence");
+        let dir = std::env::temp_dir().join("scooper-test-config-precedence");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let path = write_config(

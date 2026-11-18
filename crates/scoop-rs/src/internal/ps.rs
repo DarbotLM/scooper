@@ -93,16 +93,16 @@ function ensure($dir) {
 }
 function get_config($name, $default) {
     $name = $name.ToLowerInvariant()
-    if ($null -eq $BaggerConfig[$name] -and $null -ne $default) { return $default }
-    return $BaggerConfig[$name]
+    if ($null -eq $ScooperConfig[$name] -and $null -ne $default) { return $default }
+    return $ScooperConfig[$name]
 }
 function shim($path, $global, $name, $arg) {
-    # Bagger creates shims in Rust after the hook script runs
+    # Scooper creates shims in Rust after the hook script runs
     # (shim::add), so this is a no-op kept for manifest compatibility.
     if ($path) { Write-Host "Creating shim for $path" }
 }
 function startmenu_shortcut($target, $shortcutName, $arguments, $icon, $global) {
-    # Bagger creates start menu shortcuts in Rust after the hook script
+    # Scooper creates start menu shortcuts in Rust after the hook script
     # runs (shortcut::add), so this is a no-op kept for manifest compatibility.
     if ($shortcutName) { Write-Host "Creating start menu shortcut for $shortcutName" }
 }
@@ -115,7 +115,7 @@ function Get-HelperPath {
         [String]$Helper
     )
     process {
-        $p = $BaggerHelpers[$Helper]
+        $p = $ScooperHelpers[$Helper]
         if ($p -and (Test-Path $p -PathType Leaf)) { return $p }
         if ($Helper -eq 'Git') {
             return (Get-Command git -CommandType Application -TotalCount 1 -ErrorAction Ignore).Source
@@ -314,7 +314,7 @@ function Expand-7zipArchive {
     )
     if ((get_config USE_EXTERNAL_7ZIP)) {
         try { $7zPath = (Get-Command '7z' -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source }
-        catch { abort "`nCannot find external 7-Zip (7z.exe) while 'use_external_7zip' is 'true'!`nRun 'bagger config set use_external_7zip false' or install 7-Zip manually and try again." }
+        catch { abort "`nCannot find external 7-Zip (7z.exe) while 'use_external_7zip' is 'true'!`nRun 'scooper config set use_external_7zip false' or install 7-Zip manually and try again." }
     } else {
         $7zPath = Get-HelperPath -Helper 7zip
     }
@@ -610,13 +610,13 @@ pub(crate) fn build_prelude_for(
         git
     };
     out.push_str(&format!(
-        "$BaggerHelpers = @{{ 'Git' = {git}; '7zip' = {seven}; 'Lessmsi' = {less}; 'Innounp' = {innounp}; 'Dark' = {dark}; 'Aria2' = {aria} }}\n",
+        "$ScooperHelpers = @{{ 'Git' = {git}; '7zip' = {seven}; 'Lessmsi' = {less}; 'Innounp' = {innounp}; 'Dark' = {dark}; 'Aria2' = {aria} }}\n",
         seven = helper("7zip", "7z.exe"),
         less = helper("lessmsi", "lessmsi.exe"),
         aria = helper("aria2", "aria2c.exe"),
     ));
     out.push_str(&format!(
-        "$BaggerConfig = @{{ 'use_external_7zip' = {ext}; 'use_lessmsi' = {less}; 'no_junction' = {noj} }}\n",
+        "$ScooperConfig = @{{ 'use_external_7zip' = {ext}; 'use_lessmsi' = {less}; 'no_junction' = {noj} }}\n",
         ext = if config.use_external_7zip() {
             "$true"
         } else {
@@ -871,7 +871,7 @@ mod tests {
     #[test]
     fn helper_exe_prefers_current_then_global() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-helper-exe");
+        let base = std::env::temp_dir().join("scooper-test-helper-exe");
         let _ = std::fs::remove_dir_all(&base);
         let user_root = base.join("user");
         let global_root = base.join("global");
@@ -906,7 +906,7 @@ mod tests {
     #[cfg(windows)]
     fn prelude_exposes_hook_variables() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-prelude-vars");
+        let base = std::env::temp_dir().join("scooper-test-prelude-vars");
         let _ = std::fs::remove_dir_all(&base);
         std::env::set_var("SCOOP", base.join("root"));
         std::env::set_var("SCOOP_GLOBAL", base.join("global"));
@@ -991,8 +991,8 @@ mod tests {
 $z = Get-HelperPath 7zip
 if (!$z) { $z = (Get-Command 7z.exe -CommandType Application -ErrorAction Ignore).Source }
 if (!$z) { 'NO7Z' } else {
-  $BaggerHelpers['7zip'] = $z
-  $t = Join-Path $env:TEMP 'bagger-test-7zrt'
+  $ScooperHelpers['7zip'] = $z
+  $t = Join-Path $env:TEMP 'scooper-test-7zrt'
   if (Test-Path $t) { Remove-Item $t -Recurse -Force }
   New-Item -ItemType Directory $t | Out-Null
   'hello-ore' | Out-File "$t\a.txt" -Encoding ascii -NoNewline
@@ -1013,7 +1013,7 @@ if (!$z) { 'NO7Z' } else {
         let session = Session::new();
         let pkg = test_package();
         let script = r#"
-$t = Join-Path $env:TEMP 'bagger-test-uninstallrm'
+$t = Join-Path $env:TEMP 'scooper-test-uninstallrm'
 if (Test-Path $t) { Remove-Item $t -Recurse -Force }
 New-Item -ItemType Directory "$t\d" | Out-Null
 'f' | Out-File "$t\d\f.txt" -Encoding ascii -NoNewline

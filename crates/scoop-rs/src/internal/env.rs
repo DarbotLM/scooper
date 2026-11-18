@@ -154,7 +154,7 @@ mod windows {
                 "-NoProfile",
                 "-NonInteractive",
                 "-Command",
-                "[Environment]::SetEnvironmentVariable('BAGGER_ENV_SYNC', '1', 'User'); [Environment]::SetEnvironmentVariable('BAGGER_ENV_SYNC', $null, 'User')",
+                "[Environment]::SetEnvironmentVariable('SCOOPER_ENV_SYNC', '1', 'User'); [Environment]::SetEnvironmentVariable('SCOOPER_ENV_SYNC', $null, 'User')",
             ])
             .output();
         if let Err(e) = out {

@@ -39,12 +39,15 @@ pub fn humansize(length: u64, with_unit: bool) -> String {
     }
 }
 
+#[cfg(windows)]
 use windows::Win32::Foundation::BOOL;
+#[cfg(windows)]
 use windows::Win32::Security::{
     CheckTokenMembership, CreateWellKnownSid, WinBuiltinAdministratorsSid, PSID,
     SECURITY_MAX_SID_SIZE,
 };
 
+#[cfg(windows)]
 pub(crate) fn is_admin() -> bool {
     // DWORD-align the backing buffer for the SID returned by CreateWellKnownSid.
     let mut sid_buffer = [0u32; (SECURITY_MAX_SID_SIZE as usize).div_ceil(size_of::<u32>())];
@@ -78,6 +81,11 @@ pub(crate) fn is_admin() -> bool {
     }
 
     is_member.as_bool()
+}
+
+#[cfg(not(windows))]
+pub(crate) fn is_admin() -> bool {
+    false
 }
 
 /// Enable global scope when `--global` was passed.

@@ -90,7 +90,7 @@ mod tests {
 
     #[test]
     fn file_url_get_returns_body() {
-        let dir = std::env::temp_dir().join("bagger-probe-net");
+        let dir = std::env::temp_dir().join("scooper-probe-net");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("hello.txt"), b"hi").unwrap();
         let url = format!(

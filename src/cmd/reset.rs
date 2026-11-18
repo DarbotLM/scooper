@@ -142,7 +142,7 @@ mod tests {
     #[cfg(windows)]
     fn reset_over_readonly_current_link() {
         let _guard = crate::util::lock_test_env();
-        let base = std::env::temp_dir().join("bagger-test-reset-readonly");
+        let base = std::env::temp_dir().join("scooper-test-reset-readonly");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let app = root.join("apps").join("resetapp");

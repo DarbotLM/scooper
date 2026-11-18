@@ -120,7 +120,7 @@ mod tests {
 
     fn unique_dir(tag: &str) -> std::path::PathBuf {
         let dir = std::env::temp_dir().join(format!(
-            "bagger-test-manifest-cache-{}-{}",
+            "scooper-test-manifest-cache-{}-{}",
             tag,
             std::process::id()
         ));

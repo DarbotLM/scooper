@@ -298,7 +298,7 @@ impl Package {
             .url()
             .into_iter()
             .map(|u| {
-                let mut hasher = bagger_hash::ChecksumBuilder::new().sha256().build();
+                let mut hasher = scooper_hash::ChecksumBuilder::new().sha256().build();
                 hasher.consume(u.as_bytes());
                 let mut hash = hasher.finalize();
                 hash.truncate(7);
@@ -649,7 +649,7 @@ mod tests {
     /// file is not a healthy install.
     #[test]
     fn install_metadata_covers_both_namings() {
-        let base = std::env::temp_dir().join("bagger-test-metadata-names");
+        let base = std::env::temp_dir().join("scooper-test-metadata-names");
         let _ = std::fs::remove_dir_all(&base);
         let legacy = base.join("legacy");
         let scoped = base.join("scoped");
@@ -682,7 +682,7 @@ mod tests {
     /// still installed, and the highest version with metadata wins.
     #[test]
     fn metadata_dir_falls_back_to_version_dir() {
-        let base = std::env::temp_dir().join("bagger-test-metadata-fallback");
+        let base = std::env::temp_dir().join("scooper-test-metadata-fallback");
         let _ = std::fs::remove_dir_all(&base);
         let current = base.join("current");
         let older = base.join("1.2.0");

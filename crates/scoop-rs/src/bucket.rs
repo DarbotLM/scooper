@@ -366,7 +366,7 @@ mod tests {
     #[cfg(windows)]
     fn junctioned_buckets_are_discovered() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-bucket-junction");
+        let base = std::env::temp_dir().join("scooper-test-bucket-junction");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let target = base.join("real");

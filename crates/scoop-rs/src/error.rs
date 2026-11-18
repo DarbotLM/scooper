@@ -107,7 +107,7 @@ pub enum Error {
 
     /// Scoop hash error
     #[error(transparent)]
-    Hash(#[from] bagger_hash::Error),
+    Hash(#[from] scooper_hash::Error),
 
     /// Curl error
     #[error(transparent)]

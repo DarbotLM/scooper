@@ -470,7 +470,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn active_version_prefers_current_target() {
-        let base = std::env::temp_dir().join("bagger-test-cleanup-active");
+        let base = std::env::temp_dir().join("scooper-test-cleanup-active");
         let _ = std::fs::remove_dir_all(&base);
         let app = base.join("app");
         let old = app.join("1.0");
@@ -492,7 +492,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn active_version_resolves_healthy_layout() {
-        let base = std::env::temp_dir().join("bagger-test-cleanup-healthy");
+        let base = std::env::temp_dir().join("scooper-test-cleanup-healthy");
         let _ = std::fs::remove_dir_all(&base);
         let app = base.join("app");
         let old = app.join("1.0");
@@ -527,7 +527,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn cleanup_spares_metadata_less_dirs() {
-        let base = std::env::temp_dir().join("bagger-test-cleanup-mixed");
+        let base = std::env::temp_dir().join("scooper-test-cleanup-mixed");
         let _ = std::fs::remove_dir_all(&base);
         let app = base.join("mixapp");
         let live = app.join("2.0");

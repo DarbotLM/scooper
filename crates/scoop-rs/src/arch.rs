@@ -2,7 +2,7 @@
 //!
 //! Manifest field resolution (`url`, `hash`, `bin`, …) is architecture
 //! specific. By default the host architecture is used, but callers (such as
-//! `bagger install --arch 32bit`, or the `SCOOP_ARCH` environment variable)
+//! `scooper install --arch 32bit`, or the `SCOOP_ARCH` environment variable)
 //! may override it process-wide via [`set_override`].
 
 use std::sync::RwLock;
