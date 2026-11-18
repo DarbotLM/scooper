@@ -1322,7 +1322,7 @@ fn resolve_fosshub_url(page_url: &str, proxy: Option<&str>) -> Option<String> {
 
 /// Binaries of a manifest matching `query`, mirroring upstream
 /// `bin_match_json` display values: full filenames whose stem or alias
-/// matches. `literal` selects plain case-insensitive matching (bagger
+/// matches. `literal` selects plain case-insensitive matching (scooper
 /// `--explicit`) over regex.
 pub fn matching_bin_names(
     manifest: &crate::package::manifest::Manifest,
@@ -1458,7 +1458,7 @@ mod remote_search_tests {
     #[test]
     fn cache_clear_spares_manifest_db() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-cache-db");
+        let dir = std::env::temp_dir().join("scooper-test-cache-db");
         let _ = std::fs::remove_dir_all(&dir);
         let cache = dir.join("cache");
         std::fs::create_dir_all(&cache).unwrap();
@@ -1522,7 +1522,7 @@ fn github_api_get(session: &Session, url: &str, proxy: Option<&str>) -> Option<S
     }
     if code == 403 && body.contains("rate limit") {
         eprintln!(
-            "warning: GitHub API rate limit reached. Configure a token via 'bagger config set gh_token <token>'."
+            "warning: GitHub API rate limit reached. Configure a token via 'scooper config set gh_token <token>'."
         );
         return None;
     }
@@ -1936,7 +1936,7 @@ pub(crate) fn autoupdate_expand(
                         internal::network::fetch_bytes(url, proxy.as_deref()).ok_or_else(|| {
                             Error::Custom(format!("failed to download autoupdate URL '{url}'"))
                         })?;
-                    let mut hasher = bagger_hash::ChecksumBuilder::new().sha256().build();
+                    let mut hasher = scooper_hash::ChecksumBuilder::new().sha256().build();
                     hasher.consume(&bytes);
                     hashes.push(format!("sha256:{}", hasher.finalize()));
                 }
@@ -2092,7 +2092,7 @@ pub fn autoupdate_apply(
                         internal::network::fetch_bytes(url, proxy.as_deref()).ok_or_else(|| {
                             Error::Custom(format!("failed to download autoupdate URL '{url}'"))
                         })?;
-                    let mut hasher = bagger_hash::ChecksumBuilder::new().sha256().build();
+                    let mut hasher = scooper_hash::ChecksumBuilder::new().sha256().build();
                     hasher.consume(&bytes);
                     hashes.push(format!("sha256:{}", hasher.finalize()));
                 }
@@ -2476,7 +2476,7 @@ mod tests {
     #[test]
     fn install_dir_respects_global_scope() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-global-scope");
+        let dir = std::env::temp_dir().join("scooper-test-global-scope");
         let user_root = dir.join("user");
         let global_root = dir.join("global");
         std::env::set_var("SCOOP", &user_root);
@@ -2515,7 +2515,7 @@ mod tests {
     #[test]
     fn bucket_remove_rejects_unsafe_names() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-bucket-rm-guard");
+        let dir = std::env::temp_dir().join("scooper-test-bucket-rm-guard");
         let _ = std::fs::remove_dir_all(&dir);
         let root = dir.join("root");
         std::fs::create_dir_all(root.join("buckets/realb")).unwrap();
@@ -2656,7 +2656,7 @@ mod tests {
         for var in ["SCOOP_GH_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"] {
             std::env::remove_var(var);
         }
-        let base = std::env::temp_dir().join("bagger-test-ghtoken");
+        let base = std::env::temp_dir().join("scooper-test-ghtoken");
         let _ = std::fs::remove_dir_all(&base);
         std::fs::create_dir_all(&base).unwrap();
         std::fs::write(base.join("config.json"), "{}").unwrap();
@@ -2689,7 +2689,7 @@ mod tests {
     #[test]
     fn private_host_headers_match_urls() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-privhosts");
+        let base = std::env::temp_dir().join("scooper-test-privhosts");
         let _ = std::fs::remove_dir_all(&base);
         std::fs::create_dir_all(&base).unwrap();
         std::fs::write(base.join("config.json"), "{}").unwrap();
@@ -2757,7 +2757,7 @@ mod tests {
         for var in ["SCOOP_GH_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"] {
             std::env::remove_var(var);
         }
-        let base = std::env::temp_dir().join("bagger-test-special-url");
+        let base = std::env::temp_dir().join("scooper-test-special-url");
         let _ = std::fs::remove_dir_all(&base);
         std::fs::create_dir_all(&base).unwrap();
         std::fs::write(base.join("config.json"), "{}").unwrap();
@@ -2868,7 +2868,7 @@ mod tests {
         for var in ["SCOOP_GH_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"] {
             std::env::remove_var(var);
         }
-        let base = std::env::temp_dir().join("bagger-test-ghheaders");
+        let base = std::env::temp_dir().join("scooper-test-ghheaders");
         let _ = std::fs::remove_dir_all(&base);
         std::fs::create_dir_all(&base).unwrap();
         std::fs::write(base.join("config.json"), "{}").unwrap();
@@ -2949,7 +2949,7 @@ mod tests {
     /// headers are simply ignored by the file protocol.
     #[test]
     fn checkver_honors_useragent() {
-        let dir = std::env::temp_dir().join("bagger-test-checkver-ua");
+        let dir = std::env::temp_dir().join("scooper-test-checkver-ua");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("ver.json"), r#"{"tag": "9.9.9"}"#).unwrap();
         let url = format!(
@@ -2961,7 +2961,7 @@ mod tests {
             r#"{{"version": "1.0", "homepage": "https://example.com",
                 "license": "MIT",
                 "checkver": {{"url": "{url}", "jsonpath": "$.tag",
-                               "useragent": "BaggerTest/1.0"}}}}"#
+                               "useragent": "ScooperTest/1.0"}}}}"#
         );
         let manifest = Manifest::parse_bytes(json.as_bytes(), &dir.join("ua.json")).unwrap();
         let pkg = Package::from("ua-pkg", "main", manifest);
@@ -2978,7 +2978,7 @@ mod tests {
     /// Fully offline via `file://` payloads.
     #[test]
     fn autoupdate_rewrites_download_hashes() {
-        let dir = std::env::temp_dir().join("bagger-test-autoupdate");
+        let dir = std::env::temp_dir().join("scooper-test-autoupdate");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("app-2.0.bin"), b"new-bytes").unwrap();
 
@@ -3008,7 +3008,7 @@ mod tests {
         let done = super::autoupdate_apply(&session, &pkg, "2.0", &[], true).unwrap();
         assert!(done.wrote);
 
-        let mut hasher = bagger_hash::ChecksumBuilder::new().sha256().build();
+        let mut hasher = scooper_hash::ChecksumBuilder::new().sha256().build();
         hasher.consume(b"new-bytes");
         let expected = format!("sha256:{}", hasher.finalize());
 
@@ -3528,7 +3528,7 @@ pub fn virustotal_file_report(
     path: &std::path::Path,
     api_key: &str,
 ) -> Fallible<VirustotalReport> {
-    use bagger_hash::ChecksumBuilder;
+    use scooper_hash::ChecksumBuilder;
     use std::io::Read;
 
     let mut hasher = ChecksumBuilder::new().sha256().build();

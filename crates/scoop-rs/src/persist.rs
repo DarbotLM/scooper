@@ -191,7 +191,7 @@ mod tests {
     #[test]
     fn link_keeps_existing_store_on_upgrade() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-persist-upgrade");
+        let base = std::env::temp_dir().join("scooper-test-persist-upgrade");
         let _ = std::fs::remove_dir_all(&base);
         let session = test_session(&base);
         let pkg = persist_package();
@@ -235,7 +235,7 @@ mod tests {
     #[test]
     fn link_moves_fresh_content_into_store() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-persist-fresh");
+        let base = std::env::temp_dir().join("scooper-test-persist-fresh");
         let _ = std::fs::remove_dir_all(&base);
         let session = test_session(&base);
         let pkg = persist_package();
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn link_honors_pair_target() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-persist-pair");
+        let base = std::env::temp_dir().join("scooper-test-persist-pair");
         let _ = std::fs::remove_dir_all(&base);
         let session = test_session(&base);
         let manifest = Manifest::parse_bytes(
@@ -303,7 +303,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn unlink_links_removes_junctions_only() {
-        let base = std::env::temp_dir().join("bagger-test-persist-unlink");
+        let base = std::env::temp_dir().join("scooper-test-persist-unlink");
         let _ = std::fs::remove_dir_all(&base);
         let version = base.join("1.0");
         let store = base.join("store/Data");
@@ -345,7 +345,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn grant_users_write_stamps_users_sid() {
-        let base = std::env::temp_dir().join("bagger-test-persist-acl");
+        let base = std::env::temp_dir().join("scooper-test-persist-acl");
         let _ = std::fs::remove_dir_all(&base);
         std::fs::create_dir_all(&base).unwrap();
 

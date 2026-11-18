@@ -19,6 +19,7 @@ mod create;
 mod depends;
 mod download;
 mod export;
+mod graph;
 mod hold;
 mod home;
 mod import;
@@ -47,7 +48,7 @@ use crate::Result;
     long_about = format!("{}
 
 If you find any bugs or have a feature request, please open an issue on
-GitHub: https://github.com/vincentmathis/bagger/issues", crate_description!()),
+GitHub: https://github.com/DarbotLM/scooper/issues", crate_description!()),
     subcommand_required = true,
     arg_required_else_help = true,
     max_term_width = 100,
@@ -81,6 +82,7 @@ pub enum Command {
     Depends(depends::Args),
     Download(download::Args),
     Export(export::Args),
+    Graph(graph::Args),
     Hold(hold::Args),
     Home(home::Args),
     Import(import::Args),
@@ -111,7 +113,7 @@ pub fn start() -> Result<()> {
     // logger) or parses args — stdout is the candidate protocol here.
     clap_complete::CompleteEnv::with_factory(Cli::command).complete();
 
-    // User aliases (`bagger alias add ll "list -u"`) expand before parsing;
+    // User aliases (`scooper alias add ll "list -u"`) expand before parsing;
     // builtins always win over aliases.
     let args = Cli::try_parse_from(alias::expand_argv(std::env::args_os().collect()))
         .unwrap_or_else(|e| e.exit());
@@ -125,7 +127,10 @@ pub fn start() -> Result<()> {
     }
     setup_logger(level)?;
 
-    let user_agent = format!("Scoop/1.0 (+https://scoop.sh/) bagger/{}", crate_version!());
+    let user_agent = format!(
+        "Scoop/1.0 (+https://scoop.sh/) scooper/{}",
+        crate_version!()
+    );
     let _ = session.set_user_agent(&user_agent);
 
     match args.command {
@@ -143,6 +148,7 @@ pub fn start() -> Result<()> {
         Command::Depends(args) => depends::execute(args, &session),
         Command::Download(args) => download::execute(args, &session),
         Command::Export(args) => export::execute(args, &session),
+        Command::Graph(args) => graph::execute(args),
         Command::Hold(args) => hold::execute(args, &session),
         Command::Home(args) => home::execute(args, &session),
         Command::Import(args) => import::execute(args, &session),
@@ -178,9 +184,9 @@ fn setup_logger(level_filter: LevelFilter) -> Result<()> {
         .with_default_directive(level_filter.into())
         .from_env()?;
 
-    // The custom `BAGGER_LOG_LEVEL` environment variable was introduced to set the
-    // log level for bagger since the first version.
-    if let Ok(level) = std::env::var("BAGGER_LOG_LEVEL") {
+    // The custom `SCOOPER_LOG_LEVEL` environment variable was introduced to set the
+    // log level for scooper since the first version.
+    if let Ok(level) = std::env::var("SCOOPER_LOG_LEVEL") {
         layer_env_filter = layer_env_filter.add_directive(format!("scoop_rs={level}").parse()?);
     }
 

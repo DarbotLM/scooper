@@ -1,7 +1,7 @@
 //! Optional heavy-machinery progress strings.
 //!
-//! Bagger's default output stays plain and script-compatible. Set
-//! `BAGGER_FLAVOR=heavy` to swap progress lines for deadpan industrial
+//! Scooper's default output stays plain and script-compatible. Set
+//! `SCOOPER_FLAVOR=heavy` to swap progress lines for deadpan industrial
 //! equivalents ("Hauling..." instead of "Downloading packages...").
 //!
 //! Nothing else changes: same events, same exit codes, same machine-readable
@@ -9,7 +9,7 @@
 
 /// Whether the heavy-machinery flavor is enabled.
 pub fn heavy() -> bool {
-    std::env::var("BAGGER_FLAVOR")
+    std::env::var("SCOOPER_FLAVOR")
         .map(|v| v.eq_ignore_ascii_case("heavy"))
         .unwrap_or(false)
 }
@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn default_output_is_plain() {
         let _lock = ENV_LOCK.lock().unwrap();
-        std::env::remove_var("BAGGER_FLAVOR");
+        std::env::remove_var("SCOOPER_FLAVOR");
         assert!(!heavy());
         assert_eq!(progress("resolve"), "Resolving packages...");
         assert_eq!(progress("sizing"), "Calculating download size...");
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn heavy_flavor_swaps_strings() {
         let _lock = ENV_LOCK.lock().unwrap();
-        std::env::set_var("BAGGER_FLAVOR", "Heavy");
+        std::env::set_var("SCOOPER_FLAVOR", "Heavy");
         assert!(heavy());
         assert_eq!(progress("resolve"), "Surveying the pit...");
         assert_eq!(progress("sizing"), "Weighing the load...");
@@ -86,6 +86,6 @@ mod tests {
         assert_eq!(progress("verified"), "Assayed.");
         assert_eq!(progress("cached"), "Nothing to haul - already stockpiled.");
         assert_eq!(progress("buckets"), "Rotating the wheel...");
-        std::env::remove_var("BAGGER_FLAVOR");
+        std::env::remove_var("SCOOPER_FLAVOR");
     }
 }

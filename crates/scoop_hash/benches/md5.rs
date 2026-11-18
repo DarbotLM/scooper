@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use scoop_hash::ChecksumBuilder;
+use scooper_hash::ChecksumBuilder;
 
 fn md5(size: usize) {
     let data = &vec![0xffu8; size][..];
@@ -10,31 +10,31 @@ fn md5(size: usize) {
 
 fn benchmark_md5_100(c: &mut Criterion) {
     let mut group = c.benchmark_group("md5_100");
-    group.bench_function("scoop_hash", |b| b.iter(|| md5(black_box(100))));
+    group.bench_function("scooper_hash", |b| b.iter(|| md5(black_box(100))));
     group.finish();
 }
 
 fn benchmark_md5_1000(c: &mut Criterion) {
     let mut group = c.benchmark_group("md5_1000");
-    group.bench_function("scoop_hash", |b| b.iter(|| md5(black_box(1000))));
+    group.bench_function("scooper_hash", |b| b.iter(|| md5(black_box(1000))));
     group.finish();
 }
 
 fn benchmark_md5_10000(c: &mut Criterion) {
     let mut group = c.benchmark_group("md5_10000");
-    group.bench_function("scoop_hash", |b| b.iter(|| md5(black_box(10000))));
+    group.bench_function("scooper_hash", |b| b.iter(|| md5(black_box(10000))));
     group.finish();
 }
 
 fn benchmark_md5_100000(c: &mut Criterion) {
     let mut group = c.benchmark_group("md5_100000");
-    group.bench_function("scoop_hash", |b| b.iter(|| md5(black_box(100000))));
+    group.bench_function("scooper_hash", |b| b.iter(|| md5(black_box(100000))));
     group.finish();
 }
 
 fn benchmark_md5_1000000(c: &mut Criterion) {
     let mut group = c.benchmark_group("md5_1000000");
-    group.bench_function("scoop_hash", |b| b.iter(|| md5(black_box(1000000))));
+    group.bench_function("scooper_hash", |b| b.iter(|| md5(black_box(1000000))));
     group.finish();
 }
 

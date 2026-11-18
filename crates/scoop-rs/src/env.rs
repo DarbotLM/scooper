@@ -479,17 +479,17 @@ mod tests {
     #[test]
     fn env_expansion_handles_env_lookups_and_unknowns() {
         let scope = test_scope();
-        std::env::set_var("BAGGER_TEST_PROBE", "probed");
+        std::env::set_var("SCOOPER_TEST_PROBE", "probed");
         assert_eq!(
-            expand_hook_vars("$env:BAGGER_TEST_PROBE!", &scope),
+            expand_hook_vars("$env:SCOOPER_TEST_PROBE!", &scope),
             "probed!"
         );
-        std::env::remove_var("BAGGER_TEST_PROBE");
+        std::env::remove_var("SCOOPER_TEST_PROBE");
         // Unknown variables expand to empty (upstream `ExpandString`); a
         // `$` that cannot start a variable stays literal.
         assert_eq!(expand_hook_vars("a$nope_var b", &scope), "a b");
         assert_eq!(expand_hook_vars("price: $5", &scope), "price: $5");
-        assert_eq!(expand_hook_vars("$env:BAGGER_TEST_MISSING", &scope), "");
+        assert_eq!(expand_hook_vars("$env:SCOOPER_TEST_MISSING", &scope), "");
     }
 
     #[test]
@@ -537,7 +537,7 @@ mod tests {
     #[cfg(windows)]
     fn scrub_removes_install_dir_from_user_path() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-env-scrub");
+        let base = std::env::temp_dir().join("scooper-test-env-scrub");
         let _ = std::fs::remove_dir_all(&base);
         std::env::set_var("SCOOP", base.join("root"));
         std::env::set_var("SCOOP_GLOBAL", base.join("global"));

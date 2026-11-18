@@ -44,7 +44,7 @@ fn check_main_bucket(session: &Session) -> Option<SystemCheck> {
     if !has_main_bucket(&names) {
         return Some(SystemCheck::new(
             "Main bucket is not added.",
-            vec!["run 'bagger bucket add main'"],
+            vec!["run 'scooper bucket add main'"],
         ));
     }
     None

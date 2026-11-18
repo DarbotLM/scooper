@@ -128,37 +128,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
-name = "bagger"
-version = "1.3.1"
-dependencies = [
- "anyhow",
- "clap",
- "clap-verbosity-flag",
- "clap_complete",
- "crossterm",
- "dirs",
- "indicatif",
- "junction",
- "regex",
- "remove_dir_all",
- "scoop-rs",
- "serde_json",
- "tracing-subscriber",
- "windows 0.58.0",
-]
-
-[[package]]
-name = "bagger-hash"
-version = "1.3.1"
-dependencies = [
- "criterion",
- "digest",
- "md-5",
- "sha1",
- "sha2",
-]
-
-[[package]]
 name = "bitflags"
 version = "2.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1643,7 +1612,6 @@ dependencies = [
 name = "scoop-rs"
 version = "1.3.1"
 dependencies = [
- "bagger-hash",
  "chrono",
  "curl",
  "dirs",
@@ -1658,12 +1626,44 @@ dependencies = [
  "remove_dir_all",
  "roxmltree",
  "rusqlite",
+ "scooper-hash",
  "serde",
  "serde_json",
  "sysinfo",
  "thiserror 1.0.69",
  "tracing",
  "winreg",
+]
+
+[[package]]
+name = "scooper"
+version = "1.3.1"
+dependencies = [
+ "anyhow",
+ "clap",
+ "clap-verbosity-flag",
+ "clap_complete",
+ "crossterm",
+ "dirs",
+ "indicatif",
+ "junction",
+ "regex",
+ "remove_dir_all",
+ "scoop-rs",
+ "serde_json",
+ "tracing-subscriber",
+ "windows 0.58.0",
+]
+
+[[package]]
+name = "scooper-hash"
+version = "1.3.1"
+dependencies = [
+ "criterion",
+ "digest",
+ "md-5",
+ "sha1",
+ "sha2",
 ]
 
 [[package]]

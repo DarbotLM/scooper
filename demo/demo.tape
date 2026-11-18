@@ -1,16 +1,16 @@
 Output demo.gif
 
-Type "bagger list"
+Type "scooper list"
 Enter
 Sleep 2s
 
 
-Type "bagger install yazi"
+Type "scooper install yazi"
 Enter
 Sleep 1s
 Type "y"
 Enter
 
-Type "bagger cleanup -a --cache"
+Type "scooper cleanup -a --cache"
 Enter
 Sleep 1s

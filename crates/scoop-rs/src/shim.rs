@@ -125,7 +125,7 @@ pub fn add(session: &Session, package: &Package) -> Fallible<()> {
             let bin_dir = apps_dir.join(pkg_name).join(&version);
             let target = with_path_fallback(shim.real_name, bin_dir.join(shim.real_name));
 
-            // Older bagger versions wrote batch content into `{name}.exe`,
+            // Older scooper versions wrote batch content into `{name}.exe`,
             // which shadows the working `.cmd` and fails on execution.
             // Remove the poison, but never touch a native binary.
             if shim.ty == ShimType::Exe {
@@ -159,7 +159,7 @@ pub fn add(session: &Session, package: &Package) -> Fallible<()> {
 
 /// Warn about a shim whose target was never materialized.
 ///
-/// Upstream aborts the install here; bagger warns and continues so one bad
+/// Upstream aborts the install here; scooper warns and continues so one bad
 /// `bin` entry cannot wedge an otherwise good install, but the breakage is
 /// impossible to miss.
 fn warn_missing_target(pkg_name: &str, shim: &Shim, target: &Path) {
@@ -195,10 +195,10 @@ fn shim_files(shim: &Shim) -> Vec<(String, ShimContent)> {
     }
 }
 
-/// Whether a `{name}.exe` file is bagger-poison: script content wearing an
+/// Whether a `{name}.exe` file is scooper-poison: script content wearing an
 /// executable extension.
 ///
-/// Such files were written by older bagger versions and can neither execute
+/// Such files were written by older scooper versions and can neither execute
 /// nor be shadowed — `PATH` resolution finds them first and fails. Native
 /// (MZ-header) binaries are always left alone.
 fn is_poisoned_exe(path: &Path) -> bool {
@@ -499,7 +499,7 @@ fn probe_pathext(dir: &Path, file_name: &str) -> Option<PathBuf> {
 /// Repair executable shims for all installed apps.
 ///
 /// Rewrites missing or outdated `{name}.cmd` wrappers for `Exe` bins and
-/// removes poisoned (batch-content) `{name}.exe` files left by older bagger
+/// removes poisoned (batch-content) `{name}.exe` files left by older scooper
 /// versions. Native binaries are never touched. Returns the names of
 /// packages that were repaired.
 pub fn refresh(session: &Session) -> Fallible<Vec<String>> {
@@ -806,7 +806,7 @@ mod tests {
 
     #[test]
     fn poison_detection_keeps_native_binaries() {
-        let dir = std::env::temp_dir().join("bagger-test-shim-poison");
+        let dir = std::env::temp_dir().join("scooper-test-shim-poison");
         std::fs::create_dir_all(&dir).unwrap();
 
         // Batch content with an .exe extension: poison.
@@ -828,7 +828,7 @@ mod tests {
     #[test]
     fn add_writes_cmd_and_heals_poison() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-shim-add");
+        let base = std::env::temp_dir().join("scooper-test-shim-add");
         let _ = std::fs::remove_dir_all(&base);
         std::env::set_var("SCOOP", base.join("root"));
         std::env::set_var("SCOOP_GLOBAL", base.join("global"));
@@ -868,7 +868,7 @@ mod tests {
         // Regression test: uninstalling after a partial failure (shims
         // already gone) must converge, not abort with os error 2.
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-shim-remove");
+        let base = std::env::temp_dir().join("scooper-test-shim-remove");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let current = root.join("apps/unshim/current");
@@ -918,7 +918,7 @@ mod tests {
         // with its discovered owner) instead of overwriting it; identical
         // content is left alone.
         let dir =
-            std::env::temp_dir().join(format!("bagger-test-shim-collide-{}", std::process::id()));
+            std::env::temp_dir().join(format!("scooper-test-shim-collide-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let shim = dir.join("tool.cmd");
@@ -956,7 +956,7 @@ mod tests {
 
     #[test]
     fn target_of_parses_shim_flavors() {
-        let dir = std::env::temp_dir().join("bagger-test-shim-target");
+        let dir = std::env::temp_dir().join("scooper-test-shim-target");
         std::fs::create_dir_all(&dir).unwrap();
 
         let batch = dir.join("a.cmd");
@@ -995,7 +995,7 @@ mod tests {
     fn target_of_prefers_sh_style_comments() {
         // Upstream sh-style shims record the target as an unquoted comment;
         // quoted `"$(wslpath …)"` wrappers further down must not win.
-        let dir = std::env::temp_dir().join("bagger-test-shim-comments");
+        let dir = std::env::temp_dir().join("scooper-test-shim-comments");
         std::fs::create_dir_all(&dir).unwrap();
 
         let bare = dir.join("tool");
@@ -1038,7 +1038,7 @@ mod tests {
     #[test]
     fn target_of_resolves_relative_targets() {
         // Upstream alias shims (scoop.ps1, sudo.ps1) use relative targets.
-        let dir = std::env::temp_dir().join("bagger-test-shim-relative");
+        let dir = std::env::temp_dir().join("scooper-test-shim-relative");
         let sub = dir.join("shims");
         std::fs::create_dir_all(&sub).unwrap();
 
@@ -1062,7 +1062,7 @@ mod tests {
     #[test]
     fn path_fallback_resolves_bare_names_only() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-shim-pathfind");
+        let dir = std::env::temp_dir().join("scooper-test-shim-pathfind");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("sys-tool.exe"), "dummy").unwrap();

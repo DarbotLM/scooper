@@ -1,13 +1,13 @@
-# Scoop Features Comparison: bagger vs Original Scoop
+# Scoop Features Comparison: scooper vs Original Scoop
 
-This document compares the features and commands of [Scoop](https://github.com/ScoopInstaller/Scoop) (the original PowerShell-based package manager) against the Rust reimplementation **`bagger`** and its library **`scoop-rs`**.
+This document compares the features and commands of [Scoop](https://github.com/ScoopInstaller/Scoop) (the original PowerShell-based package manager) against the Rust reimplementation **`scooper`** and its library **`scoop-rs`**.
 
 Legend:
 - [x] Implemented
 - [~] Partially/Experimental
 - [ ] Not implemented
 
-Command provenance: all 28 upstream commands are implemented (`help` is served by clap, matching `scoop help`). Three commands have no upstream counterpart, marked `(extension)` below: `upgrade` (inherited from hok by Chawye Hsu, the project bagger was renamed from — upstream upgrades via `update`), `autofetch` (added during bagger's parity drive; upstream's equivalent is the bucket-maintainer tool `bin/checkver.ps1 -Update`), and `completions` (shell completion scripts).
+Command provenance: all 28 upstream commands are implemented (`help` is served by clap, matching `scoop help`). Three commands have no upstream counterpart, marked `(extension)` below: `upgrade` (inherited from hok by Chawye Hsu, the project scooper was renamed from — upstream upgrades via `update`), `autofetch` (added during scooper's parity drive; upstream's equivalent is the bucket-maintainer tool `bin/checkver.ps1 -Update`), and `completions` (shell completion scripts).
 
 ---
 
@@ -17,67 +17,67 @@ Command provenance: all 28 upstream commands are implemented (`help` is served b
 
 | Command | Status | Notes |
 | :--- | :---: | :--- |
-| `bagger cat <app>` | [x] | Show manifest JSON |
-| `bagger checkup` | [x] | Check for updates, report held/running/upgradable apps; system diagnostics (Defender exclusion, main bucket, long paths, developer mode) |
-| `bagger hold <app>` | [x] | Mark apps as held |
-| `bagger info <app>` | [x] | Show manifest info for any app |
-| `bagger install <app>` | [x] | Full install with deps, shims, shortcuts, persist, env vars (upgrades outdated apps unless `-U`; skips with a warning when already current); also accepts manifest URLs and local `.json` files (isolated); `app@version` / `bucket/app@version` / `url@version` / `path.json@version` pins (history → autoupdate generation); `-g/--global` installs for all users (admin); `--arch` overrides target arch |
-| `bagger list` | [x] | List installed apps; supports `--upgradable` (incl. stale nightlies) |
-| `bagger prefix <app>` | [x] | Show installation path for an app |
-| `bagger reset <app>` | [x] | Reset an installed package to a specific version or re-extract; `current` removal is junction-aware with readonly handling (os error 183 class) |
-| `bagger search <query>` | [x] | Matches names + binaries by default (stem/alias, like upstream; matched bins shown when the name didn't hit); `--with-description` adds descriptions, `--explicit` for literal matching; falls back to not-yet-added known buckets via GitHub API; exits 1 with `No matches found.` |
-| `bagger status` | [x] | Show held, upgradable (incl. stale nightlies), and running apps |
-| `bagger unhold <app>` | [x] | Remove hold from apps |
-| `bagger uninstall <app>` | [x] | Supports `-p` (purge), cascade removal, `-g/--global` |
-| `bagger update` | [x] | Pull all subscribed buckets (no args); named apps (incl. `*`) forward to `upgrade` (like upstream); shows pulled commit logs unless `show_update_log` is false; stamps `last_update` |
-| `bagger upgrade` | [x] | (extension) Upgrade all installed apps (or named ones); `-g/--global` for global scope; `--arch` override; `--force` reinstalls current versions (previous dir rotated to `_<version>.old`), also via `force_update` config; reports when everything is already current |
-| `bagger which <command>` | [x] | Find which app owns an executable |
+| `scooper cat <app>` | [x] | Show manifest JSON |
+| `scooper checkup` | [x] | Check for updates, report held/running/upgradable apps; system diagnostics (Defender exclusion, main bucket, long paths, developer mode) |
+| `scooper hold <app>` | [x] | Mark apps as held |
+| `scooper info <app>` | [x] | Show manifest info for any app |
+| `scooper install <app>` | [x] | Full install with deps, shims, shortcuts, persist, env vars (upgrades outdated apps unless `-U`; skips with a warning when already current); also accepts manifest URLs and local `.json` files (isolated); `app@version` / `bucket/app@version` / `url@version` / `path.json@version` pins (history → autoupdate generation); `-g/--global` installs for all users (admin); `--arch` overrides target arch |
+| `scooper list` | [x] | List installed apps; supports `--upgradable` (incl. stale nightlies) |
+| `scooper prefix <app>` | [x] | Show installation path for an app |
+| `scooper reset <app>` | [x] | Reset an installed package to a specific version or re-extract; `current` removal is junction-aware with readonly handling (os error 183 class) |
+| `scooper search <query>` | [x] | Matches names + binaries by default (stem/alias, like upstream; matched bins shown when the name didn't hit); `--with-description` adds descriptions, `--explicit` for literal matching; falls back to not-yet-added known buckets via GitHub API; exits 1 with `No matches found.` |
+| `scooper status` | [x] | Show held, upgradable (incl. stale nightlies), and running apps |
+| `scooper unhold <app>` | [x] | Remove hold from apps |
+| `scooper uninstall <app>` | [x] | Supports `-p` (purge), cascade removal, `-g/--global` |
+| `scooper update` | [x] | Pull all subscribed buckets (no args); named apps (incl. `*`) forward to `upgrade` (like upstream); shows pulled commit logs unless `show_update_log` is false; stamps `last_update` |
+| `scooper upgrade` | [x] | (extension) Upgrade all installed apps (or named ones); `-g/--global` for global scope; `--arch` override; `--force` reinstalls current versions (previous dir rotated to `_<version>.old`), also via `force_update` config; reports when everything is already current |
+| `scooper which <command>` | [x] | Find which app owns an executable |
 
 ### Bucket Commands
 
 | Command | Status | Notes |
 | :--- | :---: | :--- |
-| `bagger bucket add <name> [url]` | [x] | Add bucket from built-in list or custom URL (git clone) |
-| `bagger bucket list` | [x] | List added buckets (manifest counts, sources) |
-| `bagger bucket remove <name>` | [x] | Remove bucket |
+| `scooper bucket add <name> [url]` | [x] | Add bucket from built-in list or custom URL (git clone) |
+| `scooper bucket list` | [x] | List added buckets (manifest counts, sources) |
+| `scooper bucket remove <name>` | [x] | Remove bucket |
 
 ### Cache Commands
 
 | Command | Status | Notes |
 | :--- | :---: | :--- |
-| `bagger cache list [query]` | [x] | List cached downloads |
-| `bagger cache remove <query>` | [x] | Remove cached files by name/version; `--all` clears everything |
+| `scooper cache list [query]` | [x] | List cached downloads |
+| `scooper cache remove <query>` | [x] | Remove cached files by name/version; `--all` clears everything |
 
 ### Config & Utility Commands
 
 | Command | Status | Notes |
 | :--- | :---: | :--- |
-| `bagger alias` | [x] | Manage command aliases (list, add, rm; persisted to config) |
-| `bagger cleanup <app>` | [x] | Remove old versions, keep current; `--cache` prunes downloads (incl. `*.download` partials) even when the app isn't installed |
-| `bagger completions` | [x] | (extension) Generate shell completion scripts (`--install` wires a live hook into the shell's startup files; `install.ps1` runs this automatically); upstream has no equivalent. PowerShell completion fires on PS 7+ only (5.1 limitation). The hook completes flags, subcommands, and live names: installed apps for `uninstall`/`upgrade`/`hold`/`cleanup`/`reset`/…, bucket manifests for `install`/`download`/`search`, buckets for `bucket`, shim names for `which`, config keys for `config` |
-| `bagger config [set] <key> [value]` | [x] | Get/set Scoop config.json |
-| `bagger export` | [x] | Export installed apps to JSON (incl. architecture + held); upstream object shape with buckets so `scoop import` accepts it |
-| `bagger help` | [x] | Auto-generated via clap (matches `scoop help`) |
-| `bagger home <app>` | [x] | Open app homepage in browser |
-| `bagger import` | [x] | Import apps from export file/stdin and install them (restores holds, skips isolated); reads upstream's `{buckets, apps}` shape and bagger's legacy array, auto-adding missing buckets |
-| `bagger shim` | [x] | List, add, and remove shims |
+| `scooper alias` | [x] | Manage command aliases (list, add, rm; persisted to config) |
+| `scooper cleanup <app>` | [x] | Remove old versions, keep current; `--cache` prunes downloads (incl. `*.download` partials) even when the app isn't installed |
+| `scooper completions` | [x] | (extension) Generate shell completion scripts (`--install` wires a live hook into the shell's startup files; `install.ps1` runs this automatically); upstream has no equivalent. PowerShell completion fires on PS 7+ only (5.1 limitation). The hook completes flags, subcommands, and live names: installed apps for `uninstall`/`upgrade`/`hold`/`cleanup`/`reset`/…, bucket manifests for `install`/`download`/`search`, buckets for `bucket`, shim names for `which`, config keys for `config` |
+| `scooper config [set] <key> [value]` | [x] | Get/set Scoop config.json |
+| `scooper export` | [x] | Export installed apps to JSON (incl. architecture + held); upstream object shape with buckets so `scoop import` accepts it |
+| `scooper help` | [x] | Auto-generated via clap (matches `scoop help`) |
+| `scooper home <app>` | [x] | Open app homepage in browser |
+| `scooper import` | [x] | Import apps from export file/stdin and install them (restores holds, skips isolated); reads upstream's `{buckets, apps}` shape and scooper's legacy array, auto-adding missing buckets |
+| `scooper shim` | [x] | List, add, and remove shims |
 
 ### Download & Verify Commands
 
 | Command | Status | Notes |
 | :--- | :---: | :--- |
-| `bagger autofetch <app> [all] [-w]` | [x] | (extension) Checkver + autoupdate URL expansion preview; `-w` rewrites version, URLs and download-mode hashes (upstream equivalent: bucket-maintainer tool `bin/checkver.ps1 -Update`) |
-| `bagger checkver <app>` | [x] | Check latest version from app manifest URLs |
-| `bagger checkver all` | [x] | Check all installed apps for updates |
-| `bagger create` | [x] | Create a bucket or manifest template |
-| `bagger depends <app>` | [x] | Show dependencies and reverse dependencies |
-| `bagger download <app>` | [x] | Download package without installing; `--arch` override |
+| `scooper autofetch <app> [all] [-w]` | [x] | (extension) Checkver + autoupdate URL expansion preview; `-w` rewrites version, URLs and download-mode hashes (upstream equivalent: bucket-maintainer tool `bin/checkver.ps1 -Update`) |
+| `scooper checkver <app>` | [x] | Check latest version from app manifest URLs |
+| `scooper checkver all` | [x] | Check all installed apps for updates |
+| `scooper create` | [x] | Create a bucket or manifest template |
+| `scooper depends <app>` | [x] | Show dependencies and reverse dependencies |
+| `scooper download <app>` | [x] | Download package without installing; `--arch` override |
 
 ### Security Commands
 
 | Command | Status | Notes |
 | :--- | :---: | :--- |
-| `bagger virustotal <app>` | [x] | SHA256 + VirusTotal v3 file-report lookup (flags malicious/suspicious counts) |
+| `scooper virustotal <app>` | [x] | SHA256 + VirusTotal v3 file-report lookup (flags malicious/suspicious counts) |
 
 ---
 
@@ -210,7 +210,7 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 | `aria2-fallback-enabled` | [x] | Failed aria2c downloads retry via curl (default on, like upstream); exit-code meanings reported |
 | `use_git_history` | [x] | Pinned `@version` manifests are searched in bucket git history first (default on, like upstream) |
 | `update_nightly` | [x] | Nightly apps redated on `upgrade` when a new day dawned (otherwise only `--force`); nightly installs stamp `nightly-yyyyMMdd` |
-| `alias` | [x] | Managed via `bagger alias` (list/add/rm) + `config` |
+| `alias` | [x] | Managed via `scooper alias` (list/add/rm) + `config` |
 | `use_sqlite_cache` | [x] | **Implemented** - bucket manifests cached in `<cache>/manifests.db`, invalidated by mtime+size |
 | `show_manifest` | [x] | **Implemented** - Shows manifest JSON in install/upgrade confirmation |
 | `ignore_running_processes` | [x] | **Implemented** - install/upgrade/uninstall abort on running processes unless enabled |
@@ -235,7 +235,7 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 | Persist directories | [x] | Symlink-based persistence |
 | Environment variables (PATH, custom) | [x] | Isolated path support |
 | PowerShell module import | [x] | |
-| Hash verification (MD5, SHA1, SHA256, SHA512) | [x] | via bagger-hash |
+| Hash verification (MD5, SHA1, SHA256, SHA512) | [x] | via scooper-hash |
 | Download progress tracking | [x] | |
 | Parallel bucket updates | [x] | ThreadPool-based |
 | Transactional install/uninstall | [x] | Emit events; per-package continue is the default (resolve, size, download, and commit failures warn and the rest proceed; first error returned at end); no rollback — committed packages stay committed |
@@ -244,7 +244,7 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 | Cross-bucket package replacement | [x] | When package moves buckets |
 | Candidate selection (multi-bucket) | [x] | Interactive prompt, or `BUCKET_PRIORITY` auto-select under `-y`/no-TTY |
 | Global app installation | [x] | **Implemented** - `-g/--global` on install/uninstall/upgrade scopes the session root to `global_path` (admin-gated; gate verified live, routing unit-tested); shims/shortcuts/persist/env follow automatically; cache stays user-scoped |
-| Isolated app installation | [x] | **Implemented** - `bagger install <manifest-url|path.json>` installs without a bucket (deps resolve from buckets, `__isolated__` marker in install.json) |
+| Isolated app installation | [x] | **Implemented** - `scooper install <manifest-url|path.json>` installs without a bucket (deps resolve from buckets, `__isolated__` marker in install.json) |
 | Aria2 integration | [x] | **Implemented** - `aria2c` used when `aria2-enabled` + binary on PATH (split/connections/cookie/proxy/extra-opts honored), curl fallback + optional missing-binary warning |
 | SQLite manifest cache | [x] | **Implemented** - opt-in via `use_sqlite_cache`; raw JSON keyed by (bucket, name) with mtime+size invalidation, shared across query threads |
 | Manifest auto-review prompt | [x] | **Implemented** - `show_manifest` displays manifests before install/upgrade |
@@ -253,7 +253,7 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 | Custom installer/uninstaller | [x] | Supports script or file-based installers |
 | Aria2 warning suppression | [x] | **Implemented** - `aria2_warning_enabled` config getter and setter |
 | Ignore running processes | [x] | **Implemented** - guard in sync install/remove, bypass via config |
-| Heavy-machinery CLI flavor | [x] | **Implemented** - `BAGGER_FLAVOR=heavy` swaps progress lines (`Surveying the pit…`, `Hauling…`, `Assaying the ore…`); default output stays script-compatible |
+| Heavy-machinery CLI flavor | [x] | **Implemented** - `SCOOPER_FLAVOR=heavy` swaps progress lines (`Surveying the pit…`, `Hauling…`, `Assaying the ore…`); default output stays script-compatible |
 
 ---
 
@@ -281,16 +281,16 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 
 - **checkver page-fetch headers** - checkver/autoupdate page fetches don't send `private_hosts` headers or `Referer` (package downloads do both); no `--version` pin for single checks
 - (nothing else tracked — see deliberate divergences below)
-- **Known divergences (deliberate)** - `update -f` spelling is `upgrade --force`; missing shim targets warn instead of aborting the install; `install` upgrades outdated apps unless `-U/--no-upgrade` (upstream warns and skips; bagger reports skips only when already current)
+- **Known divergences (deliberate)** - `update -f` spelling is `upgrade --force`; missing shim targets warn instead of aborting the install; `install` upgrades outdated apps unless `-U/--no-upgrade` (upstream warns and skips; scooper reports skips only when already current)
 
 ## Previously Missing - Now Implemented (this iteration)
 
 7. **Runtime dependencies** - `runtime` manifest field parsed, resolved like `depends`, shown in `info`/`depends`
 8. **Ignore running processes** - sync install/remove abort with `PackageRunningProcesses` error unless `ignore_running_processes` is set
 9. **VirusTotal binary scan** - real SHA256 + VT v3 `GET /files/{sha256}` verdicts (malicious/suspicious/harmless/undetected)
-10. **Autofetch** - `bagger autofetch <app>|all [--write]` previews expanded autoupdate URLs + hash modes
+10. **Autofetch** - `scooper autofetch <app>|all [--write]` previews expanded autoupdate URLs + hash modes
 11. **Aria2 download manager** - downloads delegated to `aria2c` when `aria2-enabled` is set and the binary is on PATH (honors split/max-connection/min-split/retry-wait/cookie/proxy/extra options); warns when enabled-but-missing if `aria2-warning-enabled`, otherwise curl backend is used
-12. **Isolated package installs** - `bagger install <url|path.json>` fetches/parses the manifest, derives the app name from the basename, resolves deps from buckets, and records no bucket in install.json (`__isolated__` marker)
+12. **Isolated package installs** - `scooper install <url|path.json>` fetches/parses the manifest, derives the app name from the basename, resolves deps from buckets, and records no bucket in install.json (`__isolated__` marker)
 13. **SQLite manifest caching** - `use_sqlite_cache` caches bucket manifest JSON in `<cache>/manifests.db` keyed by (bucket, name) with mtime+size invalidation; failures fall back to disk parsing
 14. **Global app installs** - `-g/--global` on install/uninstall/upgrade (plus existing cleanup support) scopes the session root to `global_path` via a runtime-only config override; admin rights required
 15. **Install notes & suggestions** - `notes`/`suggest` shown after install via `PackageInstalledNotes`; added missing `notes()` getter
@@ -310,7 +310,7 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 29. **Cold-path fixes from execution** - `download --help` no longer panics (`-v` collided with global verbose; now long-only `--version`); `reset` repoints `current` via junction-aware removal (was os error 183); verified by reset/cleanup e2e across two versions
 30. **Archive/script/persist/broken-shim verification** - 7z extraction (incl. subdirs), `post_install` markers and persist symlinks all behave Scoop-true; `checkup` now detects broken content shims via `shim::target_of` (old check only saw dangling symlinks)
 31. **Negative-path hardening** - exit codes verified (1 on error, 0 on success); offline cache-miss now reports the missing cache file via `InvalidCacheFile` instead of raw os error 2
-32. **Installer-hook verification + README rebrand** - `pre_install`/`installer.script`/`pre_uninstall`/`uninstaller.script` all execute in order (verified offline); release profile builds (8.1MB, fat LTO); README rewritten for bagger with the real 31-command list
+32. **Installer-hook verification + README rebrand** - `pre_install`/`installer.script`/`pre_uninstall`/`uninstaller.script` all execute in order (verified offline); release profile builds (8.1MB, fat LTO); README rewritten for scooper with the real 31-command list
 33. **Alias persistence + shim rm alias** - `config set alias` accepts the JSON alias map (alias add/rm were broken end-to-end); `shim rm` alias added; `create` builds the real `bucket/` layout; verified alias/config/shim/create/completions/virustotal-no-key behavior live
 34. **Export/import architecture** - export records installed arch; import groups by arch with per-group resolution; caught + fixed a `query_installed` regression (a clippy refactor had moved `return Some` inside the upgradable-only branch, emptying all installed queries)
 35. **Scoop hook-scope prelude** - every manifest script now runs with upstream's hook variables (`$dir`, `$version`, `$architecture`, `$app`, `$bucket`, `$bucketsdir`, `$fname`, `$global` as real bool, `$original_dir`, `$persist_dir`, `$cmd`) plus faithful ports of `Expand-7zipArchive`/`Expand-MsiArchive`/`Expand-InnoArchive`/`Expand-DarkArchive`/`Expand-ZipArchive`, `Get-HelperPath`, `Invoke-ExternalCommand`, `movedir`, `Add-Path`/`Remove-Path`, `Get/Set-EnvVar`, and msg helpers; fixed `$global` env (was wrongly derived from `use_isolated_path`) and added `SCOOP_GLOBAL` env
@@ -318,7 +318,7 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 37. **`installer.file`/`uninstaller.file` execution** - file-based installers run with `$dir`/`$global`/`$version` arg substitution (`.ps1` via hook scope, else direct execution), removed unless `keep`; 32 in-the-wild manifests (mostly nonportable) were silently skipped before
 38. **Native MSI extraction + `extract_dir` promote** - `.msi` goes through lessmsi/msiexec (7z mangles MSI-internal names into `_`-prefixed garbage, and the old code never extracted MSIs at all — every MSI-backed install died with os error 5); `extract_dir` now promotes the named subdir's contents up (was inverted: moved the tree into its own descendant and crashed); proven by real `7zip` + `obsidian` installs
 39. **Running-process skip (bulk) + persist upgrade parity** - bulk install/upgrade/uninstall now SKIPS apps with running processes (with a `Skipping 'x' (running: …)` message) instead of aborting the whole transaction; explicitly requested singles still fail loudly; re-checked at commit time to close the download window; `persist::link` mirrors upstream (`store wins, fresh content stashed as .original`) instead of renaming over existing data (os error 5 on every persist-app upgrade); proven live (`7zip`/`mediainfo-gui` upgrades that crashed before) plus real-spawn unit test
-40. **Shim `.exe` poisoning fix + `shim refresh`** - bagger wrote batch content into `{name}.exe`, which cannot execute (os error 216) and shadows the working wrapper in `PATH` resolution (77 apps affected on one real root); `Exe` shims now write only `{name}.cmd`, `add()` removes poison (never native binaries), `remove()` cleans the new set, and `bagger shim refresh` repairs all installed apps
+40. **Shim `.exe` poisoning fix + `shim refresh`** - scooper wrote batch content into `{name}.exe`, which cannot execute (os error 216) and shadows the working wrapper in `PATH` resolution (77 apps affected on one real root); `Exe` shims now write only `{name}.cmd`, `add()` removes poison (never native binaries), `remove()` cleans the new set, and `scooper shim refresh` repairs all installed apps
 41. **Shim argument forwarding + 7z resolution hardening** - all shim flavors now forward caller args (`%*`/`"$@"`/`@args`; `7z l file` ran bare `7z` before), and 7z lookup probes `7z.cmd` plus the session root's `7zip` app (previously `PATH`-only, blind after the poisoning cleanup)
 42. **Cleanup resilience + persist unlink hardening** - `cleanup` no longer aborts the whole run on one locked old version (reports `Couldn't remove x (in use by: …; quit them and retry)` and continues); persist-link removal goes through the hardened helper because raw `remove_dir` fails on junctions with os error 5; proven live on a running-from-old-version FanControl
 43. **Real-name download staging** - downloads are staged into the app dir under upstream `url_filename` semantics (leaf after last slash, `#/...` coerces: `Obsidian-….exe#/dl.7z` stages as `dl.7z`) instead of cache hash names, so hook scripts, `installer.file` paths, `$fname`, and shim targets observe the names manifests were written against; `extract_to` no longer swallows unextractable app binaries (oh-my-posh's exe); proven by reinstalling hyperfine/delta/oh-my-posh/zoxide live
@@ -339,27 +339,27 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 58. **Nightly version stamping** - manifests with `version: nightly` install under `nightly-yyyyMMdd` (local date), saved self-describing; hash checks skipped for literal and dated forms; `upgrade` redates on a new day only with `update_nightly` (default off, like upstream), `--force` reinstalls any time with `_.old` rotation; same-day upgrade is a no-op; `cleanup` spares `_<v>.old*` backups (previously would have deleted them — found via upstream `Get-InstalledVersion`); proven live end to end
 59. **GitHub private-release downloads** - `releases/download` URLs resolve to API asset URLs for private repos when a token is configured (repo check + tag asset pick, `token` scheme like upstream); `api.github.com` asset downloads carry `Accept: application/octet-stream` + `Bearer` (curl backend; aria2 failures fall back to curl); proven live against a public 93-byte asset (binary bytes, not JSON metadata); the private-repo branch is unit-tested (URL split, asset pick, header selection) but has no private repo to verify against
 60. **Nightly status display** - `stale_nightlies()` (bucket manifest still `nightly`, installed stamp dated but not today, `update_nightly` set, holds excluded) feeds `status`, `list --upgradable`, and `checkup`, which show today's stamp as the target; proven live with a fabricated yesterday install (flagged in all three, silent by default, healed by `upgrade`); pins need no `update -f` equivalent — bucket attribution lets them upgrade normally (proven: `1.0` pin → plain `upgrade` → `2.0`)
-61. **Upstream re-verification corrections** - reading `scoop-cleanup.ps1` showed `cleanup` deletes `_<version>.old*` backups (no exclusion like `Get-InstalledVersion`'s list filter), so the earlier exclusion was reverted — backups clean like any old version; `cleanup -k` now also drops `*.download` partials and stale `.aria2` control files (upstream drops the former); `aria2-enabled` flipped to default-on like upstream (safe under the curl fallback); `bagger update <app>` forwards to `upgrade` with a notice (upstream semantics) instead of erroring
-62. **install.json compatibility fix (found via a real failure)** - upstream `scoop update` aborted reinstalling a bagger-managed app because bagger recorded the *download* URL in `install.json`'s `url` field and upstream mistook it for a manifest; bagger now mirrors upstream semantics exactly (manifest source for isolated installs, absent for bucket installs) and reads/writes both `scoop-*.json` and legacy names; proven live (fresh installs carry both file pairs with correct `url`, and upstream `scoop list`/`info` read bagger installs on a shared root)
-63. **Shared-root operation + junctioned buckets** - verified bagger reads *and* writes scoop-installed apps in place on the default shared root (transplanted upstream install: listed, force-reinstalled with rotation, uninstalled cleanly); bucket discovery now follows junctions (`file_type` skips reparse points); documented that each tool only cleans its own shim flavor
+61. **Upstream re-verification corrections** - reading `scoop-cleanup.ps1` showed `cleanup` deletes `_<version>.old*` backups (no exclusion like `Get-InstalledVersion`'s list filter), so the earlier exclusion was reverted — backups clean like any old version; `cleanup -k` now also drops `*.download` partials and stale `.aria2` control files (upstream drops the former); `aria2-enabled` flipped to default-on like upstream (safe under the curl fallback); `scooper update <app>` forwards to `upgrade` with a notice (upstream semantics) instead of erroring
+62. **install.json compatibility fix (found via a real failure)** - upstream `scoop update` aborted reinstalling a scooper-managed app because scooper recorded the *download* URL in `install.json`'s `url` field and upstream mistook it for a manifest; scooper now mirrors upstream semantics exactly (manifest source for isolated installs, absent for bucket installs) and reads/writes both `scoop-*.json` and legacy names; proven live (fresh installs carry both file pairs with correct `url`, and upstream `scoop list`/`info` read scooper installs on a shared root)
+63. **Shared-root operation + junctioned buckets** - verified scooper reads *and* writes scoop-installed apps in place on the default shared root (transplanted upstream install: listed, force-reinstalled with rotation, uninstalled cleanly); bucket discovery now follows junctions (`file_type` skips reparse points); documented that each tool only cleans its own shim flavor
 64. **Upstream-faithful search** - plain `search` now matches binaries by default (stem/alias semantics from `bin_match_json`, replacing the looser whole-string match that also misfired on extensions); matched binaries display when the name didn't hit; not-yet-added known buckets searched via the GitHub tree API with upstream's section header; `No matches found.` exits 1; proven live (`ttt` finds the `extractttag` app, `git` falls back to remotes)
-62. **Bidirectional export/import interop** - `export` emits upstream's exact `{buckets, apps}` shape (PascalCase core, `architecture`/`held` extensions upstream ignores); `import` reads both shapes plus either key casing, and auto-adds missing buckets from the export like upstream does; proven live both directions on a real 130-app export (scoop→bagger: buckets auto-added, 3 apps installed and executed; bagger→scoop with `SCOOP` pointed at scratch: same 3 apps, same versions) plus a holds roundtrip; sourceless (isolated) apps report as unmigratable in both directions
+62. **Bidirectional export/import interop** - `export` emits upstream's exact `{buckets, apps}` shape (PascalCase core, `architecture`/`held` extensions upstream ignores); `import` reads both shapes plus either key casing, and auto-adds missing buckets from the export like upstream does; proven live both directions on a real 130-app export (scoop→scooper: buckets auto-added, 3 apps installed and executed; scooper→scoop with `SCOOP` pointed at scratch: same 3 apps, same versions) plus a holds roundtrip; sourceless (isolated) apps report as unmigratable in both directions
 
 65. **Upgrade finalization no longer deletes the fresh install** - `finalize_upgrade` keyed the "new" version off `installed_version()`, which for an upgradable reference is still the *previous* version; the freshly committed directory was treated as an old one, deleted, and `current` left dangling while the old version stayed behind (reproduced in a scratch root: the upgrade created `2.0`, deleted `2.0`, and `current` pointed at the missing `2.0`). It now keys off `version()`; proven live in the same scratch root (`1.0` removed, `2.0` kept, `current` resolves) and by a regression test that fails against the old expression
-66. **Upstream `<auto-generated>` sources import correctly** - `scoop export` records apps installed from a locally generated manifest as `Source: "<auto-generated>"`; bagger built the bogus `<auto-generated>/app` query, which resolved to nothing and aborted the whole import. Such apps now import as `app@version` (regenerating the manifest from bucket history/autoupdate), are skipped when already installed (a pinned reinstall would downgrade), and manifest-URL/local-file sources install directly; proven live on a real 131-app scoopfile (`opencode@1.17.20` resolved to `main/opencode 1.17.20`, no abort)
+66. **Upstream `<auto-generated>` sources import correctly** - `scoop export` records apps installed from a locally generated manifest as `Source: "<auto-generated>"`; scooper built the bogus `<auto-generated>/app` query, which resolved to nothing and aborted the whole import. Such apps now import as `app@version` (regenerating the manifest from bucket history/autoupdate), are skipped when already installed (a pinned reinstall would downgrade), and manifest-URL/local-file sources install directly; proven live on a real 131-app scoopfile (`opencode@1.17.20` resolved to `main/opencode 1.17.20`, no abort)
 67. **Batch resolution tolerance** - a name that matches nothing no longer aborts the rest of an install/import: it warns, the remaining packages resolve and commit (visible as `installed X` / `upgraded X` lines), and the first error is returned at the end so the exit code stays non-zero; proven live (`install bat <bogus> zstd`: warning, both real packages processed, `ERROR` line, exit 1; same for a bad scoopfile entry)
-68. **Broken app dirs stay recoverable** - a `current` junction left dangling (or a metadata-less staging dir) by a failed/interrupted upgrade made bagger report the app as not installed, so `upgrade` could never repair it; metadata lookup now falls back to the highest version directory carrying install metadata; proven live (`bagger list` regains the 17 apps that were invisible, `upgrade` lists them again)
+68. **Broken app dirs stay recoverable** - a `current` junction left dangling (or a metadata-less staging dir) by a failed/interrupted upgrade made scooper report the app as not installed, so `upgrade` could never repair it; metadata lookup now falls back to the highest version directory carrying install metadata; proven live (`scooper list` regains the 17 apps that were invisible, `upgrade` lists them again)
 
 ## Build & Distribution
 
 | Feature | Status | Notes |
 | :--- | :---: | :--- |
-| `cargo install bagger` | [x] | Install from crates.io |
-| `scripts/install.ps1` | [x] | One-liner PowerShell installer: `iwr -useb https://raw.githubusercontent.com/vincentmathis/bagger/main/scripts/install.ps1 \| iex` |
+| `cargo install scooper` | [x] | Install from crates.io |
+| `scripts/install.ps1` | [x] | One-liner PowerShell installer: `iwr -useb https://raw.githubusercontent.com/DarbotLM/scooper/main/scripts/install.ps1 \| iex` |
 | GitHub Actions CI | [x] | Lint (fmt+clippy), test matrix (x64/i686/arm64), release build, auto-release via `release-please` |
-| Release artifacts | [x] | `bagger-x86_64/i686/aarch64-pc-windows-msvc.zip` attached to GitHub releases |
-| Scoop bucket | [~] | Published as `scripts/install.ps1` one-liner; dedicated `bagger` bucket (`scoop bucket add bagger …`) not yet created |
-| winget package | [~] | Not yet published (would require community maintainer approval of a `vincentmathis.bagger` manifest) |
+| Release artifacts | [x] | `scooper-x86_64/i686/aarch64-pc-windows-msvc.zip` attached to GitHub releases |
+| Scoop bucket | [~] | Published as `scripts/install.ps1` one-liner; dedicated `scooper` bucket (`scoop bucket add scooper …`) not yet created |
+| winget package | [~] | Not yet published (requires a `DarbotLM.scooper` manifest) |
 
 ## Notes
 
@@ -369,5 +369,5 @@ Manifest fields from the [Scoop schema](https://github.com/ScoopInstaller/Scoop/
 - PowerShell script invocation is functional but requires `powershell.exe` (Windows-only).
 - Archive extraction depends on an external `7z` executable.
 - The library (`scoop-rs`) is API-complete for manifests but some options are parsed-but-not-active.
-- `bagger-hash` is a new crate providing MD5/SHA1/SHA256/SHA512 hashing.
-- The original `scoop-hash` crate on crates.io was owned by a third party, so the crate was renamed to `bagger-hash`.
+- `scooper-hash` is a new crate providing MD5/SHA1/SHA256/SHA512 hashing.
+- The original `scoop-hash` crate on crates.io was owned by a third party, so the crate was renamed to `scooper-hash`.

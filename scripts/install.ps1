@@ -1,14 +1,14 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    One-liner install script for bagger (Scoop in Rust).
+    One-liner install script for scooper (Scoop in Rust).
 .DESCRIPTION
-    Downloads a bagger release binary from GitHub and places it on PATH
+    Downloads a scooper release binary from GitHub and places it on PATH
     (per-user or system-wide).
 .NOTES
     Windows-only.  Requires PowerShell 5.1+ and an internet connection.
 .EXAMPLE
-    PS> iwr -useb https://raw.githubusercontent.com/vincentmathis/bagger/main/scripts/install.ps1 | iex
+    PS> iwr -useb https://raw.githubusercontent.com/DarbotLM/scooper/main/scripts/install.ps1 | iex
 #>
 param(
     [switch]$System,          # install to Program Files (machine-wide, requires admin)
@@ -22,8 +22,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 # — helpers ──────────────────────────────────────────────────────────────
-function Write-Step([string]$msg) { Write-Host "[bagger] " -NoNewline -ForegroundColor Cyan; Write-Host $msg }
-function Die([string]$msg, [int]$code = 1) { Write-Host "[bagger] ERROR: $msg" -ForegroundColor Red; exit $code }
+function Write-Step([string]$msg) { Write-Host "[scooper] " -NoNewline -ForegroundColor Cyan; Write-Host $msg }
+function Die([string]$msg, [int]$code = 1) { Write-Host "[scooper] ERROR: $msg" -ForegroundColor Red; exit $code }
 
 # — resolve install dir ─────────────────────────────────────────────────
 if (-not $Dir) {
@@ -31,16 +31,16 @@ if (-not $Dir) {
         if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
             Die "Admin rights are required for a system-wide (-System) installation."
         }
-        $Dir = "$Env:ProgramFiles\bagger"
+        $Dir = "$Env:ProgramFiles\scooper"
     } else {
-        $Dir = "$Env:LOCALAPPDATA\bagger"
+        $Dir = "$Env:LOCALAPPDATA\scooper"
     }
 }
 $Dir = [System.IO.Path]::GetFullPath($Dir)
 
 # — fetch release asset URL ─────────────────────────────────────────
 Write-Step "Resolving release ..."
-$apiBase = "https://api.github.com/repos/vincentmathis/bagger/releases"
+$apiBase = "https://api.github.com/repos/DarbotLM/scooper/releases"
 $release = if ($Tag -eq "latest") {
     irm "$apiBase/latest"
 } else {
@@ -54,15 +54,15 @@ try { $remote = [Version]($release.tag_name.TrimStart('v')) } catch { $remote = 
 $arch = if ([System.Environment]::Is64BitOperatingSystem) {
     if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'aarch64' } else { 'x86_64' }
 } else { 'i686' }
-$want = "bagger-$arch-pc-windows-msvc.zip"
+$want = "scooper-$arch-pc-windows-msvc.zip"
 $asset = @($release.assets | Where-Object { $_.name -eq $want })[0]
 if (-not $asset) { Die "Release $($release.tag_name) has no asset '$want'." }
 
 $zipUrl = $asset.browser_download_url
-$zipTmp = "$env:TEMP\bagger-install.zip"
+$zipTmp = "$env:TEMP\scooper-install.zip"
 
 # — check existing ─────────────────────────────────────────────────────
-$exe = "$Dir\bagger.exe"
+$exe = "$Dir\scooper.exe"
 $upToDate = $false
 if (-not $Force -and (Test-Path $exe)) {
     try {
@@ -83,7 +83,7 @@ if (-not $upToDate) {
     New-Item -ItemType Directory -Force -Path $Dir | Out-Null
     Expand-Archive -LiteralPath $zipTmp -DestinationPath $Dir -Force
 
-    if (-not (Test-Path $exe)) { Die "Extraction did not yield bagger.exe" }
+    if (-not (Test-Path $exe)) { Die "Extraction did not yield scooper.exe" }
     Remove-Item $zipTmp -ErrorAction SilentlyContinue
 }
 
@@ -101,12 +101,12 @@ if (-not $NoEnv) {
 # — smoke test ─────────────────────────────────────────────────────────
 Write-Step "Verifying install ..."
 $env:Path = "$Dir;$env:Path"
-$verOut = (bagger --version 2>$null)
-if ($verOut -match 'bagger (\S+)') { Write-Host "bagger $($Matches[1]) installed to $exe" -ForegroundColor Green }
-else { Die "bagger.exe failed to start after install." }
+$verOut = (scooper --version 2>$null)
+if ($verOut -match 'scooper (\S+)') { Write-Host "scooper $($Matches[1]) installed to $exe" -ForegroundColor Green }
+else { Die "scooper.exe failed to start after install." }
 
 # — shell completions ────────────────────────────────────────────────
-# Delegates to `bagger completions powershell --install`, which is
+# Delegates to `scooper completions powershell --install`, which is
 # idempotent (marker-guarded), so re-running this script backfills
 # completions on up-to-date installs too. Same marker is used for manual
 # installs, so the two never duplicate each other.
@@ -114,13 +114,13 @@ if (-not $NoCompletions) {
     try {
         Write-Step "Installing PowerShell completions ..."
         # Native-command failures don't throw under $ErrorActionPreference="Stop",
-        # so check the exit code explicitly (e.g. upgrading from a bagger that
+        # so check the exit code explicitly (e.g. upgrading from a scooper that
         # predates --install must warn, not die).
-        bagger completions powershell --install
-        if ($LASTEXITCODE -ne 0) { throw "bagger completions exited with code $LASTEXITCODE" }
+        scooper completions powershell --install
+        if ($LASTEXITCODE -ne 0) { throw "scooper completions exited with code $LASTEXITCODE" }
     } catch {
-        Write-Host "[bagger] WARNING: could not install shell completions: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "[scooper] WARNING: could not install shell completions: $($_.Exception.Message)" -ForegroundColor Yellow
     }
 }
 
-Write-Host "Run 'bagger help' to get started." -ForegroundColor Green
+Write-Host "Run 'scooper help' to get started." -ForegroundColor Green
