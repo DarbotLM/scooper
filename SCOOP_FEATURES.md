@@ -25,6 +25,7 @@ Command provenance: all 28 upstream commands are implemented (`help` is served b
 | `bagger list` | [x] | List installed apps; supports `--upgradable` (incl. stale nightlies) |
 | `bagger prefix <app>` | [x] | Show installation path for an app |
 | `bagger reset <app>` | [x] | Reset an installed package to a specific version or re-extract; `current` removal is junction-aware with readonly handling (os error 183 class) |
+| `bagger rustup` | [x] | (extension) Manage toolchains of a Scoop-installed rustup (rustup/rustup-msvc/rustup-gnu) with its persisted CARGO_HOME/RUSTUP_HOME: status, list, install (incl. pinned `darbot-<ver>` from darbotlm/rust_cargo), uninstall, default, update, override, component, target, which, run, doctor; `mxc` runs cargo inside an MXC process container (network denied by default, toolchains read-only) |
 | `bagger search <query>` | [x] | Matches names + binaries by default (stem/alias, like upstream; matched bins shown when the name didn't hit); `--with-description` adds descriptions, `--explicit` for literal matching; falls back to not-yet-added known buckets via GitHub API; exits 1 with `No matches found.` |
 | `bagger status` | [x] | Show held, upgradable (incl. stale nightlies), and running apps |
 | `bagger unhold <app>` | [x] | Remove hold from apps |

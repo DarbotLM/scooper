@@ -27,6 +27,7 @@ mod install;
 mod list;
 mod prefix;
 mod reset;
+mod rustup;
 mod search;
 mod shim;
 mod status;
@@ -90,6 +91,7 @@ pub enum Command {
     List(list::Args),
     Prefix(prefix::Args),
     Reset(reset::Args),
+    Rustup(rustup::Args),
     #[clap(alias = "s")]
     Search(search::Args),
     Shim(shim::Args),
@@ -151,6 +153,7 @@ pub fn start() -> Result<()> {
         Command::List(args) => list::execute(args, &session),
         Command::Prefix(args) => prefix::execute(args, &session),
         Command::Reset(args) => reset::execute(args, &session),
+        Command::Rustup(args) => rustup::execute(args, &session),
         Command::Search(args) => search::execute(args, &session),
         Command::Shim(args) => shim::execute(args, &session),
         Command::Unhold(args) => unhold::execute(args, &session),

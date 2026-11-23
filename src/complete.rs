@@ -120,7 +120,6 @@ pub fn shims(current: &OsStr) -> Vec<CompletionCandidate> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use clap::CommandFactory;
 
     /// The engine resolves annotated positionals to live candidates:

@@ -187,6 +187,7 @@ mod tests {
         let mut perms = std::fs::symlink_metadata(app.join("current"))
             .unwrap()
             .permissions();
+        #[allow(clippy::permissions_set_readonly_false)] // Windows: clear the readonly attribute
         perms.set_readonly(false);
         std::fs::set_permissions(app.join("current"), perms).unwrap();
         std::fs::remove_dir_all(&base).ok();
