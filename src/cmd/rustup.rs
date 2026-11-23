@@ -156,6 +156,22 @@ impl RustupApp {
         }
     }
 
+    /// Copy with CARGO_HOME/RUSTUP_HOME resolved through junctions/symlinks.
+    /// MXC grants apply to the real directory, so sandbox policy and env must
+    /// name it rather than a link that the sandbox cannot traverse.
+    pub fn resolved(&self) -> RustupApp {
+        let real = |p: &Path| {
+            std::fs::canonicalize(p)
+                .map(|c| strip_verbatim(&c))
+                .unwrap_or_else(|_| p.to_path_buf())
+        };
+        RustupApp {
+            cargo_home: real(&self.cargo_home),
+            rustup_home: real(&self.rustup_home),
+            ..self.clone()
+        }
+    }
+
     pub fn bin(&self, name: &str) -> PathBuf {
         let exe = if cfg!(windows) && !name.ends_with(".exe") {
             format!("{name}.exe")
@@ -264,6 +280,96 @@ pub struct MxcOptions<'a> {
     pub rw: &'a [PathBuf],
     pub system_root: &'a Path,
     pub temp: &'a Path,
+    /// MSVC build environment (vcvars) for the msvc linker, if found.
+    pub msvc: Option<&'a MsvcEnv>,
+}
+
+/// The variables `vcvars64.bat` sets, plus the read-only roots they live in.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct MsvcEnv {
+    pub vars: Vec<(String, String)>,
+    pub roots: Vec<PathBuf>,
+}
+
+const MSVC_VARS: [&str; 9] = [
+    "PATH",
+    "LIB",
+    "LIBPATH",
+    "INCLUDE",
+    "VCINSTALLDIR",
+    "VCToolsInstallDir",
+    "WindowsSdkDir",
+    "WindowsSDKVersion",
+    "UniversalCRTSdkDir",
+];
+
+/// Parse `set` output after vcvars into the variables the linker needs.
+pub fn parse_vcvars(set_output: &str) -> Vec<(String, String)> {
+    set_output
+        .lines()
+        .filter_map(|l| l.split_once('='))
+        .filter(|(k, _)| MSVC_VARS.iter().any(|v| v.eq_ignore_ascii_case(k)))
+        .map(|(k, v)| (k.to_owned(), v.trim_end().to_owned()))
+        .collect()
+}
+
+/// Locate Visual Studio / Build Tools with vswhere and capture vcvars64.
+#[cfg(windows)]
+pub fn find_msvc_env() -> Option<MsvcEnv> {
+    let pf86 = std::env::var_os("ProgramFiles(x86)").map(PathBuf::from)?;
+    let vswhere = pf86
+        .join("Microsoft Visual Studio")
+        .join("Installer")
+        .join("vswhere.exe");
+    let out = Command::new(&vswhere)
+        .args([
+            "-latest",
+            "-products",
+            "*",
+            "-requires",
+            "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+            "-property",
+            "installationPath",
+        ])
+        .output()
+        .ok()?;
+    let install = PathBuf::from(String::from_utf8_lossy(&out.stdout).trim());
+    let vcvars = install
+        .join("VC")
+        .join("Auxiliary")
+        .join("Build")
+        .join("vcvars64.bat");
+    if !vcvars.is_file() {
+        return None;
+    }
+    // raw_arg: cmd.exe does not understand the \" escaping `arg` would apply.
+    use std::os::windows::process::CommandExt;
+    let out = Command::new("cmd.exe")
+        .raw_arg(format!(
+            "/d /s /c \"\"{}\" >nul 2>&1 && set\"",
+            vcvars.display()
+        ))
+        .output()
+        .ok()?;
+    let vars = parse_vcvars(&String::from_utf8_lossy(&out.stdout));
+    if !vars.iter().any(|(k, _)| k.eq_ignore_ascii_case("LIB")) {
+        return None;
+    }
+    let mut roots = vec![install];
+    for (k, v) in &vars {
+        if k.eq_ignore_ascii_case("WindowsSdkDir") || k.eq_ignore_ascii_case("UniversalCRTSdkDir") {
+            let p = PathBuf::from(v.trim_end_matches('\\'));
+            if !roots.contains(&p) {
+                roots.push(p);
+            }
+        }
+    }
+    Some(MsvcEnv { vars, roots })
+}
+
+#[cfg(not(windows))]
+pub fn find_msvc_env() -> Option<MsvcEnv> {
+    None
 }
 
 /// MXC process-container config for a rustup-managed command. Toolchains are
@@ -277,20 +383,31 @@ pub fn mxc_config(rustup: &RustupApp, o: &MxcOptions) -> serde_json::Value {
         rw,
         system_root,
         temp,
+        msvc,
     } = *o;
     let s = |p: &Path| p.display().to_string();
+    let mut path = format!(
+        "{};{};{}",
+        s(&rustup.cargo_home.join("bin")),
+        s(&system_root.join("System32")),
+        s(system_root)
+    );
     let mut env = vec![
         format!("CARGO_HOME={}", s(&rustup.cargo_home)),
         format!("RUSTUP_HOME={}", s(&rustup.rustup_home)),
-        format!(
-            "PATH={};{};{}",
-            s(&rustup.cargo_home.join("bin")),
-            s(&system_root.join("System32")),
-            s(system_root)
-        ),
         format!("TEMP={}", s(temp)),
         format!("TMP={}", s(temp)),
     ];
+    if let Some(m) = msvc {
+        for (k, v) in &m.vars {
+            if k.eq_ignore_ascii_case("PATH") {
+                path = format!("{path};{v}");
+            } else {
+                env.push(format!("{k}={v}"));
+            }
+        }
+    }
+    env.push(format!("PATH={path}"));
     if let Some(tc) = toolchain {
         env.push(format!("RUSTUP_TOOLCHAIN={tc}"));
     }
@@ -303,6 +420,9 @@ pub fn mxc_config(rustup: &RustupApp, o: &MxcOptions) -> serde_json::Value {
     // `rustup toolchain link` targets (darbot-* from rust_cargo) live outside
     // RUSTUP_HOME; the sandbox must be able to read their bin/ and lib/.
     readonly.extend(linked_toolchain_dirs(rustup).iter().map(|p| s(p)));
+    if let Some(m) = msvc {
+        readonly.extend(m.roots.iter().map(|p| s(p)));
+    }
     let mut readwrite = vec![
         s(cwd),
         s(temp),
@@ -552,6 +672,7 @@ pub fn execute(args: Args, session: &Session) -> Result<()> {
             if command.is_empty() {
                 command = vec!["cargo".into(), "build".into()];
             }
+            let r = r.resolved();
             let resolved = r.bin(&command[0]);
             if resolved.exists() {
                 command[0] = resolved.display().to_string();
@@ -566,6 +687,7 @@ pub fn execute(args: Args, session: &Session) -> Result<()> {
                 std::env::var_os("SystemRoot").unwrap_or_else(|| "C:\\Windows".into()),
             );
             let temp = std::env::temp_dir();
+            let msvc = find_msvc_env();
             let cfg = mxc_config(
                 &r,
                 &MxcOptions {
@@ -576,6 +698,7 @@ pub fn execute(args: Args, session: &Session) -> Result<()> {
                     rw: &rw,
                     system_root: &system_root,
                     temp: &temp,
+                    msvc: msvc.as_ref(),
                 },
             );
             let json = serde_json::to_string_pretty(&cfg)?;
@@ -758,6 +881,7 @@ mod tests {
                 rw: &rw,
                 system_root: Path::new("C:\\Windows"),
                 temp: Path::new("C:\\tmp"),
+                msvc: None,
             },
         );
         assert_eq!(cfg["version"], "1.0.0");
@@ -803,6 +927,7 @@ mod tests {
                 rw: &[],
                 system_root: Path::new("C:\\Windows"),
                 temp: Path::new("C:\\tmp"),
+                msvc: None,
             },
         );
         assert_eq!(cfg["network"]["egress"]["default"], "allow");
@@ -841,6 +966,70 @@ mod tests {
         assert!(dirs.contains(&ext), "{dirs:?}");
         assert!(dirs.contains(&r.persist.join("rust_cargo")));
         assert!(!dirs.iter().any(|p| p.ends_with("stable-x")));
+    }
+
+    #[test]
+    fn msvc_env_feeds_linker_vars_and_roots() {
+        let vars = parse_vcvars("Path=C:\\VS\\bin;C:\\x\nLIB=C:\\VS\\lib;C:\\Kits\\lib\nINCLUDE=C:\\VS\\inc\nUSERNAME=me\nWindowsSdkDir=C:\\Kits\\\n");
+        assert!(vars.iter().any(|(k, _)| k == "LIB"));
+        assert!(!vars.iter().any(|(k, _)| k == "USERNAME"));
+        let m = MsvcEnv {
+            vars,
+            roots: vec![PathBuf::from("C:\\VS"), PathBuf::from("C:\\Kits")],
+        };
+        let r = RustupApp::at(Path::new("C:\\scoop"), "rustup", false);
+        let cfg = mxc_config(
+            &r,
+            &MxcOptions {
+                command_line: "x",
+                cwd: Path::new("G:\\p"),
+                toolchain: None,
+                allow_network: false,
+                rw: &[],
+                system_root: Path::new("C:\\Windows"),
+                temp: Path::new("C:\\tmp"),
+                msvc: Some(&m),
+            },
+        );
+        let env: Vec<&str> = cfg["process"]["env"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect();
+        assert!(env.contains(&"LIB=C:\\VS\\lib;C:\\Kits\\lib"));
+        let path = env.iter().find(|e| e.starts_with("PATH=")).unwrap();
+        assert!(path.contains(".cargo\\bin") && path.ends_with("C:\\VS\\bin;C:\\x"));
+        assert_eq!(
+            env.iter()
+                .filter(|e| e.to_ascii_uppercase().starts_with("PATH="))
+                .count(),
+            1
+        );
+        let ro: Vec<&str> = cfg["filesystem"]["readonlyPaths"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect();
+        assert!(ro.contains(&"C:\\VS") && ro.contains(&"C:\\Kits"));
+    }
+
+    #[test]
+    fn resolved_follows_junctioned_homes() {
+        let d = tmp("resolve");
+        let root = d.join("root");
+        let r = RustupApp::at(&root, "rustup", false);
+        let real = d.join("real-rustup-home");
+        std::fs::create_dir_all(&real).unwrap();
+        std::fs::create_dir_all(&r.persist).unwrap();
+        junction::create(&real, &r.rustup_home).unwrap();
+        let res = r.resolved();
+        assert_eq!(
+            res.rustup_home,
+            strip_verbatim(&std::fs::canonicalize(&real).unwrap())
+        );
+        assert_eq!(res.app, "rustup");
     }
 
     #[test]
