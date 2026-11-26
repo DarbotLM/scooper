@@ -5,7 +5,7 @@
 //! and is not intended to be used directly by end users. Developers who wish
 //! to implement a Scoop frontend or make use of Scoop's functionality in their
 //! own applications may use this crate. For end users, they may take a glance
-//! at [bagger], a reference implementation built on top of this crate, which
+//! at [scooper], a reference implementation built on top of this crate, which
 //! provides a command-line interface similar to Scoop.
 //!
 //! # Overview
@@ -28,7 +28,7 @@
 //! ```
 //!
 //! [Scoop]: https://scoop.sh/
-//! [bagger]: https://github.com/vincentmathis/bagger
+//! [scooper]: https://github.com/DarbotLM/scooper
 #[macro_use]
 extern crate serde;
 
@@ -42,6 +42,7 @@ mod env;
 mod error;
 mod event;
 mod internal;
+pub mod knowledge;
 mod manifest_cache;
 mod package;
 mod persist;

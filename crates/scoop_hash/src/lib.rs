@@ -88,7 +88,7 @@ impl ChecksumBuilder {
     /// # Examples
     ///
     /// ```rust
-    /// use bagger_hash::ChecksumBuilder;
+    /// use scooper_hash::ChecksumBuilder;
     /// let mut md5 = ChecksumBuilder::new().md5().build();
     /// md5.consume(b"hello world");
     /// assert!(md5.check("5eb63bbbe01eeed093cb22bb8f5acdc3"));
@@ -167,7 +167,7 @@ impl Checksum {
     /// # Examples
     ///
     /// ```rust
-    /// use bagger_hash::ChecksumBuilder;
+    /// use scooper_hash::ChecksumBuilder;
     /// let mut sha256 = ChecksumBuilder::new().build();
     /// sha256.consume(b"hello world");
     /// let result = sha256.finalize();

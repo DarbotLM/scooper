@@ -822,7 +822,7 @@ impl Manifest {
         } else {
             internal::path::normalize_path(origin)
         };
-        // let mut checksum = bagger_hash::Checksum::new("sha256");
+        // let mut checksum = scooper_hash::Checksum::new("sha256");
         // checksum.consume(&bytes);
         // let hash = checksum.result();
         let hash = String::from("0");

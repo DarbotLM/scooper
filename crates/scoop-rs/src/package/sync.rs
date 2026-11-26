@@ -1,5 +1,5 @@
-use bagger_hash::ChecksumBuilder;
 use once_cell::unsync::OnceCell;
+use scooper_hash::ChecksumBuilder;
 use std::collections::HashSet;
 use std::io::Read;
 use tracing::{debug, info};
@@ -2059,12 +2059,12 @@ mod tests {
     ///
     /// Spawns a real process from a copy of powershell.exe placed inside the
     /// fake app directory, mirroring e.g. FanControl running from its
-    /// version dir during `bagger upgrade`.
+    /// version dir during `scooper upgrade`.
     #[test]
     #[cfg(windows)]
     fn filter_running_skips_busy_apps() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-running-skip");
+        let base = std::env::temp_dir().join("scooper-test-running-skip");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let busy_dir = root.join("apps").join("busyapp").join("1.0");
@@ -2133,7 +2133,7 @@ mod tests {
     #[test]
     fn filter_running_passes_everything_when_ignored() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-running-ignore");
+        let base = std::env::temp_dir().join("scooper-test-running-ignore");
         let _ = std::fs::remove_dir_all(&base);
         std::env::set_var("SCOOP", base.join("root"));
         std::env::set_var("SCOOP_GLOBAL", base.join("global"));
@@ -2177,7 +2177,7 @@ mod tests {
     /// then `_<v>.old(N)`), mirroring upstream `update -f`.
     #[test]
     fn rotate_version_dir_keeps_history() {
-        let base = std::env::temp_dir().join("bagger-test-rotate");
+        let base = std::env::temp_dir().join("scooper-test-rotate");
         let _ = std::fs::remove_dir_all(&base);
         let app = base.join("myapp");
         std::fs::create_dir_all(app.join("1.0")).unwrap();
@@ -2212,7 +2212,7 @@ mod tests {
     /// installs and the `current`-live directory are never touched.
     #[test]
     fn purge_failed_dir_only_purges_stale_dirs() {
-        let base = std::env::temp_dir().join("bagger-test-purge");
+        let base = std::env::temp_dir().join("scooper-test-purge");
         let _ = std::fs::remove_dir_all(&base);
         let app = base.join("myapp");
         // Stale: purged.
@@ -2236,7 +2236,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn purge_failed_dir_spares_live_current() {
-        let base = std::env::temp_dir().join("bagger-test-purge-live");
+        let base = std::env::temp_dir().join("scooper-test-purge-live");
         let _ = std::fs::remove_dir_all(&base);
         let app = base.join("myapp");
         std::fs::create_dir_all(app.join("3.0")).unwrap();
@@ -2312,7 +2312,7 @@ mod tests {
         assert_eq!(paired_entry(&["a", "b"], 5), None);
         assert_eq!(paired_entry(&[], 0), None);
 
-        let base = std::env::temp_dir().join("bagger-test-extract-pair");
+        let base = std::env::temp_dir().join("scooper-test-extract-pair");
         let _ = std::fs::remove_dir_all(&base);
         let stage = base.join("stage");
         let dest = base.join("dest");
@@ -2363,7 +2363,7 @@ mod tests {
     #[cfg(windows)]
     fn installer_args_without_file_runs_staged_download() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-installer-args");
+        let base = std::env::temp_dir().join("scooper-test-installer-args");
         let _session = installer_session(&base);
         let pkg = installer_package(r#"{"args": ["--root=$dir", "--ver=$version"]}"#);
         let dir = base.join("root/apps/instapp/1.0");
@@ -2407,7 +2407,7 @@ mod tests {
     #[cfg(windows)]
     fn installer_keep_and_ps1_retention() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-installer-keep");
+        let base = std::env::temp_dir().join("scooper-test-installer-keep");
         let _session = installer_session(&base);
         let dir = base.join("root/apps/instapp/1.0");
         std::fs::create_dir_all(&dir).unwrap();
@@ -2456,7 +2456,7 @@ mod tests {
     #[cfg(windows)]
     fn installer_outside_dir_and_missing_abort() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-installer-guard");
+        let base = std::env::temp_dir().join("scooper-test-installer-guard");
         let _session = installer_session(&base);
         let pkg = installer_package(r#"{"file": "setup.cmd"}"#);
         let dir = base.join("root/apps/instapp/1.0");
@@ -2492,7 +2492,7 @@ mod tests {
         use crate::Event;
 
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-installer-events");
+        let base = std::env::temp_dir().join("scooper-test-installer-events");
         let session = installer_session(&base);
         let rx = session.event_bus().receiver();
 
@@ -2538,7 +2538,7 @@ mod tests {
     #[test]
     fn remove_converges_after_partial_failure() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-remove-retry");
+        let base = std::env::temp_dir().join("scooper-test-remove-retry");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let version = root.join("apps/halfapp/1.0");
@@ -2581,7 +2581,7 @@ mod tests {
     #[cfg(windows)]
     fn finalize_upgrade_cleans_old_version() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-finalize-upgrade");
+        let base = std::env::temp_dir().join("scooper-test-finalize-upgrade");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let old = root.join("apps/finapp/1.0");
@@ -2653,7 +2653,7 @@ mod tests {
     #[cfg(windows)]
     fn finalize_upgrade_keeps_new_version_of_upgradable_ref() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-finalize-upgradable");
+        let base = std::env::temp_dir().join("scooper-test-finalize-upgradable");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let old = root.join("apps/finapp/1.0");

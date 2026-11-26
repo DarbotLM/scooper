@@ -62,7 +62,7 @@ jobs:
     name: Release Please
     needs: ci_test_build
     runs-on: ubuntu-latest
-    if: github.repository == 'vincentmathis/bagger' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.repository == 'DarbotLM/scooper' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -84,15 +84,15 @@ jobs:
         include:
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: bagger-x86_64-pc-windows-msvc.zip
+            name: scooper-x86_64-pc-windows-msvc.zip
 
           - target: i686-pc-windows-msvc
             os: windows-latest
-            name: bagger-i686-pc-windows-msvc.zip
+            name: scooper-i686-pc-windows-msvc.zip
 
           - target: aarch64-pc-windows-msvc
             os: windows-latest
-            name: bagger-aarch64-pc-windows-msvc.zip
+            name: scooper-aarch64-pc-windows-msvc.zip
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -121,20 +121,20 @@ jobs:
           case ${{ matrix.target }} in
             aarch64-unknown-linux-gnu) STRIP="aarch64-linux-gnu-strip" ;;
           esac;
-          "${STRIP}" target/${{ matrix.target }}/release/bagger
+          "${STRIP}" target/${{ matrix.target }}/release/scooper
 
       - name: Prepare artifacts [Windows]
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.name }} bagger.exe
+          7z a ../../../${{ matrix.name }} scooper.exe
           cd -
 
       - name: Prepare artifacts [-nix]
         if: matrix.os != 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czvf ../../../${{ matrix.name }} bagger
+          tar czvf ../../../${{ matrix.name }} scooper
           cd -
 
       - name: Upload artifacts
@@ -156,15 +156,15 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Prepare Checksums
-        run: for file in bagger-*/bagger-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
+        run: for file in scooper-*/scooper-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
 
       - name: Publish Release
-        run: gh release edit ${{ needs.cd_release_please.outputs.tag_name }} --draft=false --repo=vincentmathis/bagger
+        run: gh release edit ${{ needs.cd_release_please.outputs.tag_name }} --draft=false --repo=DarbotLM/scooper
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Attach Artifacts
         uses: softprops/action-gh-release@v2
         with:
-          files: bagger-*/bagger-*
+          files: scooper-*/scooper-*
           tag_name: ${{ needs.cd_release_please.outputs.tag_name }}

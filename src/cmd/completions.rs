@@ -11,8 +11,8 @@ use crate::{cmd::Cli, Result};
 ///
 /// Shared with `scripts/install.ps1`, so a manual `--install` and a
 /// scripted install never duplicate each other.
-pub const MARKER_START: &str = "# >>> bagger shell completions >>>";
-pub const MARKER_END: &str = "# <<< bagger shell completions <<<";
+pub const MARKER_START: &str = "# >>> scooper shell completions >>>";
+pub const MARKER_END: &str = "# <<< scooper shell completions <<<";
 
 /// Generate shell completions
 #[derive(Parser, Debug)]
@@ -38,7 +38,7 @@ pub fn execute(args: Args) -> Result<()> {
         Shell::Bash => append_rc_file("bash", home_file(".bashrc")?)?,
         Shell::Zsh => append_rc_file("zsh", home_file(".zshrc")?)?,
         Shell::Fish => write_generated(
-            &home_file(".config")?.join("fish/completions/bagger.fish"),
+            &home_file(".config")?.join("fish/completions/scooper.fish"),
             fish_block().as_bytes(),
         )?,
         _ => {
@@ -64,7 +64,7 @@ fn home_file(name: &str) -> Result<PathBuf> {
 /// flags/subcommands and live app/bucket/config names complete, always
 /// matching the installed binary. The guards keep orphaned blocks silent
 /// after an uninstall. The output is only evaluated when non-empty: older
-/// bagger releases predate the completion hook and print help to stderr
+/// scooper releases predate the completion hook and print help to stderr
 /// instead, which would leave `Invoke-Expression` with an empty string
 /// (a startup error on every shell). Native argument completers only fire
 /// on PowerShell 7+ — Windows PowerShell 5.1 registers them without error
@@ -72,24 +72,24 @@ fn home_file(name: &str) -> Result<PathBuf> {
 /// shell startup).
 fn powershell_block() -> String {
     format!(
-        "{MARKER_START}\nif (($PSVersionTable.PSVersion.Major -ge 7) -and (Get-Command bagger -ErrorAction SilentlyContinue)) {{\n    $env:COMPLETE = \"powershell\"\n    $baggerCompletions = bagger 2>$null | Out-String\n    Remove-Item Env:\\COMPLETE\n    if (-not [string]::IsNullOrWhiteSpace($baggerCompletions)) {{\n        $baggerCompletions | Invoke-Expression\n    }}\n}}\n{MARKER_END}\n"
+        "{MARKER_START}\nif (($PSVersionTable.PSVersion.Major -ge 7) -and (Get-Command scooper -ErrorAction SilentlyContinue)) {{\n    $env:COMPLETE = \"powershell\"\n    $scooperCompletions = scooper 2>$null | Out-String\n    Remove-Item Env:\\COMPLETE\n    if (-not [string]::IsNullOrWhiteSpace($scooperCompletions)) {{\n        $scooperCompletions | Invoke-Expression\n    }}\n}}\n{MARKER_END}\n"
     )
 }
 
 /// The live-evaluated block appended to bash/zsh rc files.
 fn sh_block(shell: &str) -> String {
-    format!("{MARKER_START}\ncommand -v bagger >/dev/null && eval \"$(COMPLETE={shell} bagger)\"\n{MARKER_END}\n")
+    format!("{MARKER_START}\ncommand -v scooper >/dev/null && eval \"$(COMPLETE={shell} scooper)\"\n{MARKER_END}\n")
 }
 
 /// The content of the fish completions file: re-sourced every shell, so it
 /// stays in sync with the installed binary.
 fn fish_block() -> String {
-    format!("{MARKER_START}\nCOMPLETE=fish bagger | source\n{MARKER_END}\n")
+    format!("{MARKER_START}\nCOMPLETE=fish scooper | source\n{MARKER_END}\n")
 }
 
 /// The line appended to elvish's rc.elv.
 fn elvish_block() -> String {
-    format!("{MARKER_START}\neval (E:COMPLETE=elvish bagger | slurp)\n{MARKER_END}\n")
+    format!("{MARKER_START}\neval (E:COMPLETE=elvish scooper | slurp)\n{MARKER_END}\n")
 }
 
 fn install_powershell() -> Result<()> {
@@ -115,7 +115,7 @@ fn append_rc_file(shell: &str, rc: PathBuf) -> Result<()> {
 
 /// Write `block` to `path`, creating parents as needed. Idempotent:
 /// files already containing the exact block are left untouched, while files
-/// with a stale block under the same marker (e.g. from an older bagger) are
+/// with a stale block under the same marker (e.g. from an older scooper) are
 /// healed in place, so upgrades never stack duplicate blocks.
 fn append_block(path: &Path, block: &str) -> Result<()> {
     if path.is_file() {
@@ -181,7 +181,7 @@ mod tests {
         let block = powershell_block();
         assert!(block.contains(MARKER_START));
         assert!(block.contains(MARKER_END));
-        assert!(block.contains("Get-Command bagger"));
+        assert!(block.contains("Get-Command scooper"));
         // Dynamic hook: re-sources the CompleteEnv registration live.
         assert!(block.contains("COMPLETE"));
         // Empty output (pre-hook binaries) must not reach Invoke-Expression.
@@ -194,12 +194,12 @@ mod tests {
     fn sh_block_evals_matching_shell() {
         let block = sh_block("bash");
         assert!(block.contains(MARKER_START));
-        assert!(block.contains("COMPLETE=bash bagger"));
+        assert!(block.contains("COMPLETE=bash scooper"));
     }
 
     #[test]
     fn append_block_is_idempotent() {
-        let dir = std::env::temp_dir().join(format!("bagger-compl-idem-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("scooper-compl-idem-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         let path = dir.join("profile.ps1");
         append_block(&path, &powershell_block()).unwrap();
@@ -211,7 +211,7 @@ mod tests {
 
     #[test]
     fn append_block_heals_stale_block() {
-        let dir = std::env::temp_dir().join(format!("bagger-compl-heal-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("scooper-compl-heal-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let path = dir.join("profile.ps1");

@@ -68,7 +68,7 @@ fn create_bucket(name: &str, dir: &std::path::Path) -> Result<()> {
         name.green(),
         bucket_dir.display()
     );
-    println!("\nTo add this bucket, run: bagger bucket add {}", name);
+    println!("\nTo add this bucket, run: scooper bucket add {}", name);
 
     Ok(())
 }

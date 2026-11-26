@@ -19,7 +19,7 @@ pub struct Args {
 pub fn execute(args: Args, session: &Session) -> Result<()> {
     if !args.package.is_empty() {
         println!(
-            "Forwarding to 'bagger upgrade {}' (upstream 'scoop update <app>' upgrades apps).",
+            "Forwarding to 'scooper upgrade {}' (upstream 'scoop update <app>' upgrades apps).",
             args.package.join(" ")
         );
         let upgrade_args = super::upgrade::Args::from_packages(args.package, args.assume_yes);

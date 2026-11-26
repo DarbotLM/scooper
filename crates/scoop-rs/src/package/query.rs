@@ -563,7 +563,7 @@ mod tests {
     #[test]
     fn history_finds_pinned_manifest() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-pinhistory");
+        let base = std::env::temp_dir().join("scooper-test-pinhistory");
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         std::fs::create_dir_all(root.join("buckets/pinbucket")).unwrap();
@@ -604,7 +604,7 @@ mod tests {
     #[test]
     fn generate_expands_pinned_version() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-pingen");
+        let base = std::env::temp_dir().join("scooper-test-pingen");
         let _ = std::fs::remove_dir_all(&base);
         let files = base.join("files");
         std::fs::create_dir_all(&files).unwrap();
@@ -612,7 +612,7 @@ mod tests {
 
         // Hash doc for the pinned version only (HEAD is 2.0).
         let hash = {
-            use bagger_hash::ChecksumBuilder;
+            use scooper_hash::ChecksumBuilder;
             let mut hasher = ChecksumBuilder::new().sha256().build();
             hasher.consume(b"v1.5-bytes");
             format!("sha256:{}", hasher.finalize())
@@ -667,7 +667,7 @@ mod tests {
 
     #[test]
     fn isolated_loader_parses_local_manifest() {
-        let dir = std::env::temp_dir().join("bagger-test-isolated");
+        let dir = std::env::temp_dir().join("scooper-test-isolated");
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("mytool.json");
         std::fs::write(
@@ -698,7 +698,7 @@ mod tests {
     #[test]
     fn installed_query_finds_32bit_record() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-installed-arch");
+        let dir = std::env::temp_dir().join("scooper-test-installed-arch");
         let current = dir.join("apps").join("archt").join("current");
         std::fs::create_dir_all(&current).unwrap();
         std::fs::write(
@@ -736,7 +736,7 @@ mod tests {
     #[test]
     fn installed_query_reads_scoped_filenames() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-installed-scoped");
+        let dir = std::env::temp_dir().join("scooper-test-installed-scoped");
         let _ = std::fs::remove_dir_all(&dir);
         let current = dir.join("apps").join("newapp").join("current");
         std::fs::create_dir_all(&current).unwrap();
@@ -823,7 +823,7 @@ mod tests {
     /// caller holds [`crate::test_support::env_guard`] and points `SCOOP`
     /// at it.
     fn installed_fixture(tag: &str, bucket_version: Option<&str>) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("bagger-test-query-{tag}"));
+        let dir = std::env::temp_dir().join(format!("scooper-test-query-{tag}"));
         let current = dir.join("apps").join("qapp").join("current");
         std::fs::create_dir_all(&current).unwrap();
         std::fs::write(
@@ -886,7 +886,7 @@ mod tests {
         // `upgrade git` must not match `gitui`/`git-lfs`: bare queries
         // are regex substrings, Explicit is exact.
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-query-substring");
+        let dir = std::env::temp_dir().join("scooper-test-query-substring");
         let _ = std::fs::remove_dir_all(&dir);
         for name in ["git", "gitui", "git-lfs"] {
             let current = dir.join("apps").join(name).join("current");
@@ -922,7 +922,7 @@ mod tests {
         // Without a `current` link the metadata lives in the version dir;
         // such installs must still resolve (and hold).
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-query-nojunction");
+        let dir = std::env::temp_dir().join("scooper-test-query-nojunction");
         let _ = std::fs::remove_dir_all(&dir);
         let version = dir.join("apps").join("njapp").join("2.0");
         std::fs::create_dir_all(&version).unwrap();
@@ -991,7 +991,7 @@ mod tests {
     #[test]
     fn synced_query_ignores_stray_files() {
         let _guard = crate::test_support::env_guard();
-        let dir = std::env::temp_dir().join("bagger-test-query-stray");
+        let dir = std::env::temp_dir().join("scooper-test-query-stray");
         let bucket_dir = dir.join("buckets").join("qbuk").join("bucket");
         std::fs::create_dir_all(&bucket_dir).unwrap();
         std::fs::write(

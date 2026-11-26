@@ -128,7 +128,7 @@ mod tests {
     #[test]
     fn engine_completes_installed_app_names() {
         let _guard = crate::util::lock_test_env();
-        let base = std::env::temp_dir().join(format!("bagger-test-engine-{}", std::process::id()));
+        let base = std::env::temp_dir().join(format!("scooper-test-engine-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
         let version = root.join("apps/neovim/0.11.0");
@@ -151,7 +151,7 @@ mod tests {
 
         let mut cmd = crate::cmd::Cli::command();
         let args = vec![
-            std::ffi::OsString::from("bagger"),
+            std::ffi::OsString::from("scooper"),
             std::ffi::OsString::from("uninstall"),
             std::ffi::OsString::from("neo"),
         ];

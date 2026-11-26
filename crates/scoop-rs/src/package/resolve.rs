@@ -338,7 +338,7 @@ mod tests {
     #[test]
     fn diamond_orders_dependencies_first() {
         let _guard = crate::test_support::env_guard();
-        let base = std::env::temp_dir().join("bagger-test-resolve-diamond");
+        let base = std::env::temp_dir().join("scooper-test-resolve-diamond");
         let _ = std::fs::remove_dir_all(&base);
         let bucket = base.join("root/buckets/qbuk/bucket");
         std::fs::create_dir_all(&bucket).unwrap();

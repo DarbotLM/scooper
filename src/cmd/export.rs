@@ -12,7 +12,7 @@ pub fn execute(_args: Args, session: &Session) -> Result<()> {
 
     // Upstream export shape (`{"buckets": [...], "apps": [...]}` with
     // PascalCase keys) so `scoop import` accepts our output directly.
-    // `architecture`/`held` are bagger extensions `scoop import` ignores.
+    // `architecture`/`held` are scooper extensions `scoop import` ignores.
     let buckets: Vec<_> = operation::bucket_list(session)?
         .iter()
         .map(|b| {

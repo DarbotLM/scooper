@@ -251,7 +251,7 @@ struct ExportApp {
 }
 
 /// Read a string field under any of several key spellings (upstream
-/// PascalCase or bagger lowercase).
+/// PascalCase or scooper lowercase).
 fn str_field(obj: &serde_json::Map<String, serde_json::Value>, keys: &[&str]) -> String {
     keys.iter()
         .filter_map(|k| obj.get(*k)?.as_str())
@@ -261,7 +261,7 @@ fn str_field(obj: &serde_json::Map<String, serde_json::Value>, keys: &[&str]) ->
 }
 
 /// Parse an export file in either shape: upstream's
-/// `{"buckets": [...], "apps": [...]}` object or bagger's legacy bare
+/// `{"buckets": [...], "apps": [...]}` object or scooper's legacy bare
 /// array. Unknown keys are ignored; entries without names are skipped.
 fn parse_export(input: &str) -> Result<(Vec<ExportBucket>, Vec<ExportApp>)> {
     let value: serde_json::Value = serde_json::from_str(input)?;
@@ -360,7 +360,7 @@ mod tests {
         assert!(!apps[0].held);
     }
 
-    /// Bagger's own shape (bare array, lowercase + extensions) parses.
+    /// Scooper's own shape (bare array, lowercase + extensions) parses.
     #[test]
     fn parses_legacy_array_shape() {
         let input = r#"[

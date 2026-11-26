@@ -83,7 +83,7 @@ pub fn execute(_args: Args, session: &Session) -> Result<()> {
                 new_ver.blue()
             );
         }
-        println!("\nRun '{}' to update them.", "bagger upgrade".cyan());
+        println!("\nRun '{}' to update them.", "scooper upgrade".cyan());
     } else {
         println!("{}", "All apps are up to date.".green());
     }

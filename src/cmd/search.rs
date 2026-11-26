@@ -129,7 +129,7 @@ pub fn execute(args: Args, session: &Session) -> Result<()> {
         remote = operation::search_remote_buckets(session, &args.query.join("|"))?;
         if !remote.is_empty() {
             println!("\nResults from other known buckets...");
-            println!("(add them using 'bagger bucket add <bucket name>')");
+            println!("(add them using 'scooper bucket add <bucket name>')");
             for (bucket, name) in &remote {
                 println!("  {name}/{bucket}");
             }

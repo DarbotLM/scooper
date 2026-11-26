@@ -1,7 +1,7 @@
 //! Name providers for shell completion.
 //!
 //! These feed `clap_complete` dynamic completers (`ArgValueCompleter`) so
-//! e.g. `bagger uninstall neo<TAB>` offers `neovim`. They are deliberately
+//! e.g. `scooper uninstall neo<TAB>` offers `neovim`. They are deliberately
 //! total and silent: completion runs on every TAB press in a bare process
 //! whose stdout is the candidate protocol, so errors fold to an empty list
 //! and nothing is ever printed.
@@ -87,7 +87,7 @@ pub fn all_app_names(session: &Session) -> Vec<String> {
     names
 }
 
-/// Keys accepted by `Config::set` (i.e. by `bagger config set/unset`).
+/// Keys accepted by `Config::set` (i.e. by `scooper config set/unset`).
 /// Keep in sync with the match arms there; both spellings included where
 /// aliases exist. Location keys (`root_path`, …) are env-derived and
 /// rejected by `set`, so they are listed for discovery anyway.
@@ -186,7 +186,7 @@ mod tests {
     fn fixture() -> (std::sync::MutexGuard<'static, ()>, std::path::PathBuf) {
         let guard = crate::test_support::env_guard();
         let base =
-            std::env::temp_dir().join(format!("bagger-test-complete-{}", std::process::id()));
+            std::env::temp_dir().join(format!("scooper-test-complete-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&base);
         let root = base.join("root");
 

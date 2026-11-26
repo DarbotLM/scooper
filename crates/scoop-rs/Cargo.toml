@@ -1,10 +1,10 @@
 [package]
 name = "scoop-rs"
 description = "Rust library implementation of Scoop"
-repository = "https://github.com/vincentmathis/bagger"
+repository = "https://github.com/DarbotLM/scooper"
 documentation = "https://docs.rs/scoop-rs"
 version = "1.3.1"
-authors = ["Chawye Hsu <su+cratesio@chawyehsu.com>", "Vincent Mathis <vincentmathis@protonmail.com>"]
+authors = ["Chawye Hsu <su+cratesio@chawyehsu.com>", "DarbotLM Contributors <opensource@darbotlabs.com>"]
 categories = ["command-line-utilities"]
 keywords = ["package-manager", "windows", "scoop"]
 license = "MIT OR Apache-2.0"
@@ -34,7 +34,7 @@ tracing = "0.1.41"
 # infer = "0.9.0"
 # zip = "0.6.2"
 
-[dependencies.bagger-hash]
+[dependencies.scooper-hash]
 version = "1.3.1"
 path = "../scoop_hash"
 
@@ -47,4 +47,4 @@ openssl = { version = "0.10.66", features = ["vendored"] }
 
 [features]
 default = []
-rustcrypto-hash = ["bagger-hash/rustcrypto"]
+rustcrypto-hash = ["scooper-hash/rustcrypto"]
